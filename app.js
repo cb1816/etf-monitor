@@ -102,7 +102,7 @@ function miniRow(f){const v=val(f);return '<div class="mini" onclick="event.stop
 
 function viewIdee(){const metricLbl=isMom()?'momentum (3-6m)':'rend. '+mLabel();
   let h='<div class="note" style="margin:12px 4px">Spunti sui fondi con dati Morningstar, per '+metricLbl+'. Filtra per macro in alto per restringere.</div>';
-  const macros=state.macro?[state.macro]:MO.filter(m=>macroCounts[m]);
+  const _mc=calcMacroCounts();const macros=state.macro?[state.macro]:MO.filter(m=>_mc[m]);
   // categorie in salita (per momentum/metrica)
   if(!state.cat){const p=F.filter(f=>f[I.cat]&&(!state.macro||f[I.macro]===state.macro)&&val(f)!=null);
     const g={};p.forEach(f=>{(g[f[I.cat]]=g[f[I.cat]]||[]).push(val(f))});
