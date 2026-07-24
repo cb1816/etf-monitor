@@ -130,7 +130,8 @@ function build(rows, series) {
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   try {
-    const series = loadJSON('series.json');
+    let series = {};
+    try { series = loadJSON('series.json'); } catch (e) {}
     const rows = await fetchScreener();
     const data = build(rows, series);
     res.setHeader('Cache-Control', 's-maxage=21600, stale-while-revalidate=86400');
