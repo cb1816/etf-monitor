@@ -14,7 +14,7 @@ METRICS.forEach(([lbl,idx])=>{const c=document.createElement('div');
   c.onclick=()=>{state.metric=idx;[...mc.children].forEach(x=>x.classList.toggle('on',+x.dataset.i===idx));catCache={};render()};mc.appendChild(c);});
 
 const TIPI=['ETF','ETC','ETN-ETP'];
-function tipoOf(f){const n=String(f[I.name]||'').toUpperCase();if(n.includes('ETC')&&!n.includes('ETF'))return 'ETC';if(n.includes('ETN')||n.includes('ETP'))return 'ETN-ETP';return 'ETF';}
+function tipoOf(f){const cat=String(f[I.cat]||'').toUpperCase();if(/TRADING|LEVERAGED|INVERSE/.test(cat))return 'ETN-ETP';const n=String(f[I.name]||'').toUpperCase();if(n.includes('ETC')&&!n.includes('ETF'))return 'ETC';if(n.includes('ETN')||n.includes('ETP'))return 'ETN-ETP';return 'ETF';}
 function calcMacroCounts(){const m={};F.forEach(f=>{if(f[I.macro]&&(!state.tipo||tipoOf(f)===state.tipo))m[f[I.macro]]=(m[f[I.macro]]||0)+1});return m;}
 const tch=document.getElementById('tipoChips');
 function buildTipoChips(){if(!tch)return;tch.innerHTML='';const counts={};F.forEach(f=>{const t=tipoOf(f);counts[t]=(counts[t]||0)+1});const mk=(label,val)=>{const c=document.createElement('div');c.className='chip'+(state.tipo===val?' on':'');c.textContent=label;c.onclick=()=>{state.tipo=val;state.cat=null;buildTipoChips();buildMacroChips();buildCatSel();render()};tch.appendChild(c)};mk('Tutti ('+F.length+')',null);TIPI.forEach(t=>{if(counts[t])mk(t+' ('+counts[t]+')',t)});}
