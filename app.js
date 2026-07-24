@@ -198,7 +198,7 @@ function detail(isin){const f=F.find(x=>x[I.isin]===isin);if(!f)return;
   var AC=accState(f),av=accel(f);
   if(AC&&av!=null)b+='<div class="mlbl">Accelerazione (1 mese vs passo del trend)</div><div class="kv"><div class="k">'+(av>0?'+':'')+av.toFixed(1)+' punti/mese</div><div class="v">'+AC.ico+' '+AC.lbl+'</div></div>';
   if(r)b+='<div class="note">Nella categoria <b>'+esc(f[I.cat])+'</b>: '+r.rank+'° su '+r.n+' per '+(isMom()?'momentum':'rend. '+mLabel())+' ('+(r.q===1?'top quartile':r.q===4?'ultimo quartile':r.q+'° quartile')+').</div>';
-  if(f[I.isin]&&String(f[I.isin]).length===10)b+='<a target="_blank" rel="noopener" style="display:inline-block;margin:10px 0 2px;padding:9px 14px;background:#2563eb;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:13px" href="https://www.justetf.com/it/etf-profile.html?isin='+f[I.isin]+'">Scheda completa JustETF ↗</a>';
+  if(f[I.isin]&&String(f[I.isin]).length===12)b+='<a target="_blank" rel="noopener" style="display:inline-block;margin:10px 0 2px;padding:9px 14px;background:#2563eb;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:13px" href="https://www.justetf.com/it/etf-profile.html?isin='+f[I.isin]+'">Scheda completa JustETF ↗</a>';
   b+='<div class="note"><span class="pill">Linee/valute: '+(f[I.nc]||1)+'</span></div>'+
     '<div class="note">Fonte: Morningstar Italia · rendimenti in EUR al '+META.date+'. Informativa, non sollecitazione all\'investimento.</div>';
   document.getElementById('sheet').innerHTML=b;document.getElementById('ov').classList.add('on');}
