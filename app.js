@@ -2,7 +2,7 @@ const DATA=window.DATA;
 const F=DATA.funds,CATS=DATA.cats,MO=DATA.macroOrder,META=DATA.meta,SER=DATA.series||{};
 const I={isin:0,name:1,cat:2,macro:3,ytd:4,m1:5,m3:6,m6:7,r1:8,r3:9,r5:10,star:11,sd:12,oc:13,mom:14,nc:15,w1:16,sec:17};
 const METRICS=[['1 sett.',16],['1 mese',5],['YTD',4],['1 anno',8],['3 anni p.a.',9],['5 anni p.a.',10],['🔥 Momentum',14]];
-let state={metric:8,macro:null,cat:null,q:'',tab:'rank',catSort:'val'};
+let state={metric:8,macro:null,cat:null,q:'',tab:'rank',catSort:'val',tipo:'ETF'};
 const isMom=()=>state.metric===14;
 const mLabel=()=>METRICS.find(m=>m[1]===state.metric)[0];
 
@@ -13,16 +13,20 @@ METRICS.forEach(([lbl,idx])=>{const c=document.createElement('div');
   c.className='chip'+(idx===14?' mom':'')+(idx===state.metric?' on':'');c.textContent=lbl;c.dataset.i=idx;
   c.onclick=()=>{state.metric=idx;[...mc.children].forEach(x=>x.classList.toggle('on',+x.dataset.i===idx));catCache={};render()};mc.appendChild(c);});
 
-const macroCounts={};F.forEach(f=>{if(f[I.macro])macroCounts[f[I.macro]]=(macroCounts[f[I.macro]]||0)+1});
+const TIPI=['ETF','ETC','ETN-ETP'];
+function tipoOf(f){const n=String(f[I.name]||'').toUpperCase();if(n.includes('ETC')&&!n.includes('ETF'))return 'ETC';if(n.includes('ETN')||n.includes('ETP'))return 'ETN-ETP';return 'ETF';}
+function calcMacroCounts(){const m={};F.forEach(f=>{if(f[I.macro]&&(!state.tipo||tipoOf(f)===state.tipo))m[f[I.macro]]=(m[f[I.macro]]||0)+1});return m;}
+const tch=document.getElementById('tipoChips');
+function buildTipoChips(){if(!tch)return;tch.innerHTML='';const counts={};F.forEach(f=>{const t=tipoOf(f);counts[t]=(counts[t]||0)+1});const mk=(label,val)=>{const c=document.createElement('div');c.className='chip'+(state.tipo===val?' on':'');c.textContent=label;c.onclick=()=>{state.tipo=val;state.cat=null;buildTipoChips();buildMacroChips();buildCatSel();render()};tch.appendChild(c)};mk('Tutti ('+F.length+')',null);TIPI.forEach(t=>{if(counts[t])mk(t+' ('+counts[t]+')',t)});}
 const mch=document.getElementById('macroChips');
-function buildMacroChips(){mch.innerHTML='';
+function buildMacroChips(){const macroCounts=calcMacroCounts();mch.innerHTML='';
   const all=document.createElement('div');all.className='chip'+(state.macro===null?' on':'');all.textContent='Tutti';
   all.onclick=()=>{state.macro=null;state.cat=null;buildMacroChips();buildCatSel();render()};mch.appendChild(all);
   MO.forEach(m=>{if(!macroCounts[m])return;const c=document.createElement('div');
     c.className='chip'+(state.macro===m?' on':'');c.textContent=m+' ('+macroCounts[m]+')';
     c.onclick=()=>{state.macro=(state.macro===m?null:m);state.cat=null;buildMacroChips();buildCatSel();render()};mch.appendChild(c);});}
 const catSel=document.getElementById('catSel');
-function buildCatSel(){const pool=F.filter(f=>f[I.cat]&&(!state.macro||f[I.macro]===state.macro));
+function buildCatSel(){const pool=F.filter(f=>f[I.cat]&&(!state.macro||f[I.macro]===state.macro)&&(!state.tipo||tipoOf(f)===state.tipo));
   const cnts={};pool.forEach(f=>cnts[f[I.cat]]=(cnts[f[I.cat]]||0)+1);
   const list=Object.keys(cnts).sort((a,b)=>a.localeCompare(b,'it'));
   catSel.innerHTML='<option value="">'+(state.macro?('Tutte le categorie '+state.macro):'Tutte le categorie Morningstar')+'</option>'+
@@ -39,6 +43,7 @@ function stars(n){return n?'★'.repeat(n)+'☆'.repeat(5-n):''}
 function esc(s){return(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function withData(l){return l.filter(f=>val(f)!==null&&val(f)!==undefined)}
 function pool(){return F.filter(f=>{
+  if(state.tipo&&tipoOf(f)!==state.tipo)return false;
   if(state.macro&&f[I.macro]!==state.macro)return false;
   if(state.cat&&f[I.cat]!==state.cat)return false;
   if(state.q){const s=(f[I.name]+' '+f[I.isin]+' '+(f[I.cat]||'')).toLowerCase();if(!s.includes(state.q))return false;}
@@ -237,4 +242,4 @@ function openInfo(){
 document.getElementById('infoBtn').onclick=openInfo;
 function closeOv(){document.getElementById('ov').classList.remove('on')}
 document.getElementById('ov').onclick=e=>{if(e.target.id==='ov')closeOv()};
-buildMacroChips();buildCatSel();render();
+buildTipoChips();buildMacroChips();buildCatSel();render();
