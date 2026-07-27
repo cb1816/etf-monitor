@@ -129,9 +129,10 @@ function build(rows, series) {
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
+  // fuori dal try: servono anche allo snapshot in caso di fallback
+  let series = {};
+  try { series = loadJSON('series.json'); } catch (e) {}
   try {
-    let series = {};
-    try { series = loadJSON('series.json'); } catch (e) {}
     const rows = await fetchScreener();
     const data = build(rows, series);
     res.setHeader('Cache-Control', 's-maxage=21600, stale-while-revalidate=86400');
@@ -140,6 +141,8 @@ module.exports = async (req, res) => {
     // Fallback: snapshot statico incluso nel repo
     try {
       const snap = loadJSON('snapshot.json');
+      snap.series = series;
+      snap.meta.nSeries = Object.keys(series).length;
       snap.meta.source += ' · snapshot (refresh fallito: ' + String(err.message || err).slice(0, 80) + ')';
       res.setHeader('Cache-Control', 's-maxage=900');
       res.status(200).json(snap);
