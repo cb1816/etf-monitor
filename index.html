@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="ETF">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
+<link rel="manifest" href="./manifest.webmanifest">
 <title>ETF Monitor</title>
 <style>
 :root{--bg:#0b1220;--panel:#131c2e;--panel2:#1b2942;--line:#25324d;--txt:#e8edf6;--mut:#93a1b8;
@@ -12,10 +19,12 @@
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.4}
 .wrap{max-width:760px;margin:0 auto;padding:0 12px 96px}
-header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#0b1220 72%,rgba(11,18,32,.92));padding:12px 12px 8px;border-bottom:1px solid var(--line)}
-.hrow{max-width:760px;margin:0 auto;display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-h1{font-size:18px;margin:0}h1 b{color:var(--accent)}
-.sub{font-size:11.5px;color:var(--mut);margin-top:2px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+header{position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#0b1220 72%,rgba(11,18,32,.92));padding:calc(12px + env(safe-area-inset-top)) 12px 8px;border-bottom:1px solid var(--line)}
+.hrow{max-width:760px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px}
+h1{font-size:18px;margin:0;white-space:nowrap}h1 b{color:var(--accent)}
+.hmeta{max-width:760px;margin:2px auto 0}
+.sub{font-size:11.5px;color:var(--mut);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.asof{display:block;font-size:12.5px;font-weight:700;color:var(--txt);line-height:1.35;margin-top:1px;white-space:nowrap}
 .infob{flex:0 0 auto;width:26px;height:26px;border-radius:50%;background:var(--chip);border:1px solid var(--line);color:var(--accent);font-weight:800;font-style:italic;font-family:Georgia,serif;font-size:15px;line-height:1;cursor:pointer;padding:0}
 .ihead{font-size:12.5px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 5px}
 .ihead.hot{color:var(--hot)}
@@ -101,7 +110,8 @@ nav button.on{color:var(--accent)}
 </head>
 <body>
 <header>
-  <div class="hrow"><h1 style="flex:0 0 auto;white-space:nowrap"><b>ETF-ETN-ETP</b> Monitor</h1><div style="display:flex;align-items:center;gap:8px;min-width:0;flex:1 1 auto;justify-content:flex-end"><div class="sub" id="cnt"></div><button id="infoBtn" class="infob" aria-label="Info">i</button></div></div>
+  <div class="hrow"><h1><b>ETF-ETC-ETN</b> Monitor</h1><button id="infoBtn" class="infob" aria-label="Info">i</button></div>
+  <div class="hmeta"><div class="sub" id="cnt"></div><div class="asof" id="asof"></div></div>
   <div class="controls">
     <div class="chips" id="metricChips"></div>
     <div class="chips" id="macroChips" style="margin-top:6px"></div>
@@ -121,7 +131,34 @@ nav button.on{color:var(--accent)}
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
 <script>
 (function(){
-  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=7';document.body.appendChild(s);}
+  /* --- Livello sopra app.js: testata con la data su una riga sua. --------------
+     app.js scrive in #cnt "N strumenti · fonte · data": qui, a caricamento finito,
+     la riscriviamo su due righe (conteggio attenuato / data in evidenza) e la
+     fonte la spostiamo nel pannello Info. app.js e api/ restano intatti. */
+  function pad2(n){return(n<10?'0':'')+n}
+  function itDate(s){
+    var m=/^\s*(\d{1,2})\/(\d{1,2})\/(\d{4})\s*$/.exec(String(s==null?'':s));
+    return m?pad2(+m[1])+'/'+pad2(+m[2])+'/'+m[3]:String(s==null?'':s).trim();
+  }
+  function head(d){
+    var meta=(d&&d.meta)||{},cnt=document.getElementById('cnt'),as=document.getElementById('asof');
+    var n=(meta.nTot!=null?meta.nTot:(meta.nData!=null?meta.nData:null));
+    if(cnt)cnt.textContent=(n!=null?Number(n).toLocaleString('it'):'—')+' strumenti';
+    var dt=itDate(meta.date);
+    if(as)as.textContent=dt?('dati al '+dt):'';
+    var b=document.getElementById('infoBtn');
+    if(b){var prev=b.onclick;b.onclick=function(e){
+      if(prev)prev.call(this,e);
+      var sh=document.getElementById('sheet');
+      if(sh&&!sh.querySelector('.srcnote')){
+        var p=document.createElement('div');p.className='note srcnote';
+        p.textContent='Fonte dati: '+(meta.source||'—')+(dt?(' · aggiornamento del '+dt):'');
+        sh.appendChild(p);
+      }
+    };}
+  }
+  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=7';
+    s.onload=function(){try{head(d)}catch(e){}};document.body.appendChild(s);}
   function withFilter(d){
     return Promise.resolve(d)
       .catch(function(){return d});
@@ -131,5 +168,7 @@ nav button.on{color:var(--accent)}
     .catch(function(){fetch('data/snapshot.json').then(function(r){return r.json()}).then(function(d){d.meta.source+=' · snapshot offline';return withFilter(d)}).then(run)});
 })();
 </script>
-<a href="https://oicr-monitor.vercel.app" style="position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));right:14px;z-index:50;background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:20px;font-size:12px;text-decoration:none;border:1px solid #334155">⇄ Fondi</a></body>
+<a href="https://oicr-monitor.vercel.app" style="position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));right:14px;z-index:50;background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:20px;font-size:12px;text-decoration:none;border:1px solid #334155">⇄ Fondi</a>
+<script>if('serviceWorker' in navigator)addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){})});</script>
+</body>
 </html>
