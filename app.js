@@ -10,7 +10,7 @@ const I={isin:0,name:1,cat:2,macro:3,ytd:4,m1:5,m3:6,m6:7,r1:8,r3:9,r5:10,star:1
          tick:23,stale:24,ccy:25};
 const METRICS=[['1 sett.',16],['1 mese',5],['3 mesi',6],['6 mesi',7],['YTD',4],
                ['1 anno',8],['3 anni p.a.',9],['5 anni p.a.',10]];
-let state={metric:7,macro:null,cat:null,q:'',tab:'rank',catSort:'score',tipo:null};
+let state={metric:7,macro:null,cat:null,q:'',tab:'rank',catSort:'score',tipo:null,leva:false};
 const mLabel=()=>(METRICS.find(m=>m[1]===state.metric)||METRICS[3])[0];
 
 document.getElementById('cnt').textContent=
@@ -49,13 +49,40 @@ function tipoOf(f){const cat=String(f[I.cat]||'').toUpperCase();
   if(n.includes('ETC')&&!n.includes('ETF'))return 'ETC';
   if(n.includes('ETN')||n.includes('ETP'))return 'ETN-ETP';
   return 'ETF';}
-function calcMacroCounts(){const m={};F.forEach(f=>{if(f[I.macro]&&(!state.tipo||tipoOf(f)===state.tipo))m[f[I.macro]]=(m[f[I.macro]]||0)+1});return m;}
+/* ---------- leva e inverse: esclusi di default ----------
+   Un 3x che fa +90% in 6 mesi non e' uno strumento "migliore": e' lo stesso indice
+   moltiplicato, con decadimento da compounding, e in classifica occupa le prime
+   posizioni per costruzione. Sono nascosti di default e richiamabili col chip ⚡.
+   Riconoscimento: macro/categoria Morningstar "Trading -" (286 strumenti) piu' una
+   rete di sicurezza sul nome, che recupera i 3x/-3x cripto classificati altrove (4). */
+const LEVA_MACRO='Leva e Inverse (ETP)';
+const LEVA_RE=/(^|[^a-z0-9])-?[1-9](?:[.,][0-9])?\s?x(?![a-z0-9])|\b(leverage|leveraged|inverse)\b/i;
+function isLevaCat(c){c=String(c||'');return c===LEVA_MACRO||/^trading/i.test(c);}
+function isLeva(f){return isLevaCat(f[I.macro])||isLevaCat(f[I.cat])||LEVA_RE.test(String(f[I.name]||''));}
+function levaOn(){return state.leva||state.macro===LEVA_MACRO||isLevaCat(state.cat);}
+function visibile(f){return levaOn()||!isLeva(f);}
+const N_LEVA=F.filter(isLeva).length;
+
+function calcMacroCounts(){const m={};F.forEach(f=>{
+  if(!f[I.macro])return;
+  if(!visibile(f)&&f[I.macro]!==LEVA_MACRO)return;   // il chip della macro leva resta tappabile
+  if(state.tipo&&tipoOf(f)!==state.tipo)return;
+  m[f[I.macro]]=(m[f[I.macro]]||0)+1});return m;}
 const tch=document.getElementById('tipoChips');
+function rebuild(){buildTipoChips();buildMacroChips();buildCatSel();render();}
 function buildTipoChips(){if(!tch)return;tch.innerHTML='';const counts={};
-  F.forEach(f=>{const t=tipoOf(f);counts[t]=(counts[t]||0)+1});
+  const base=F.filter(visibile);
+  base.forEach(f=>{const t=tipoOf(f);counts[t]=(counts[t]||0)+1});
   const mk=(label,val)=>{const c=document.createElement('div');c.className='chip'+(state.tipo===val?' on':'');
-    c.textContent=label;c.onclick=()=>{state.tipo=val;state.cat=null;buildTipoChips();buildMacroChips();buildCatSel();render()};tch.appendChild(c)};
-  mk('Tutti ('+F.length+')',null);TIPI.forEach(t=>{if(counts[t])mk(t+' ('+counts[t]+')',t)});}
+    c.textContent=label;c.onclick=()=>{state.tipo=val;state.cat=null;rebuild()};tch.appendChild(c)};
+  mk('Tutti ('+base.length+')',null);TIPI.forEach(t=>{if(counts[t])mk(t+' ('+counts[t]+')',t)});
+  if(N_LEVA){const on=levaOn();const c=document.createElement('div');
+    c.className='chip'+(on?' on':'');
+    c.textContent=on?'⚡ leva e inverse incluse':'⚡ +'+N_LEVA+' a leva e inversi';
+    c.onclick=()=>{const nuovo=!levaOn();state.leva=nuovo;
+      if(!nuovo&&(state.macro===LEVA_MACRO||isLevaCat(state.cat))){state.macro=null;state.cat=null;}
+      rebuild();};
+    tch.appendChild(c);}}
 const mch=document.getElementById('macroChips');
 function buildMacroChips(){const mcount=calcMacroCounts();mch.innerHTML='';
   const all=document.createElement('div');all.className='chip'+(state.macro===null?' on':'');all.textContent='Tutte';
@@ -64,7 +91,7 @@ function buildMacroChips(){const mcount=calcMacroCounts();mch.innerHTML='';
     c.className='chip'+(state.macro===m?' on':'');c.textContent=m+' ('+mcount[m]+')';
     c.onclick=()=>{state.macro=(state.macro===m?null:m);state.cat=null;buildMacroChips();buildCatSel();render()};mch.appendChild(c);});}
 const catSel=document.getElementById('catSel');
-function buildCatSel(){const pool=F.filter(f=>f[I.cat]&&(!state.macro||f[I.macro]===state.macro)&&(!state.tipo||tipoOf(f)===state.tipo));
+function buildCatSel(){const pool=F.filter(f=>f[I.cat]&&visibile(f)&&(!state.macro||f[I.macro]===state.macro)&&(!state.tipo||tipoOf(f)===state.tipo));
   const cnts={};pool.forEach(f=>cnts[f[I.cat]]=(cnts[f[I.cat]]||0)+1);
   const list=Object.keys(cnts).sort((a,b)=>a.localeCompare(b,'it'));
   catSel.innerHTML='<option value="">'+(state.macro?('Tutte le categorie '+esc(state.macro)):'Tutte le categorie Morningstar')+'</option>'+
@@ -78,6 +105,7 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{state.tab=b.da
 const val=f=>f[state.metric];
 function withData(l){return l.filter(f=>val(f)!==null&&val(f)!==undefined)}
 function pool(){return F.filter(f=>{
+  if(!visibile(f))return false;
   if(state.tipo&&tipoOf(f)!==state.tipo)return false;
   if(state.macro&&f[I.macro]!==state.macro)return false;
   if(state.cat&&f[I.cat]!==state.cat)return false;
@@ -114,6 +142,9 @@ function rowCard(f,rank,rc){const v=val(f);
 function viewRank(){const list=withData(pool()).sort(ordina);
   if(!list.length)return'<div class="empty">Nessuno strumento con dati per questa selezione.</div>';
   let h='<div class="sec">Classifica per rendimento '+mLabel()+' · '+list.length+' strumenti</div>';
+  if(!levaOn()&&N_LEVA)h+='<div class="note" style="margin:0 4px 8px">Esclusi '+N_LEVA+' strumenti a '+
+    'leva e inversi: moltiplicano l\'indice invece di batterlo, quindi in classifica stanno sempre '+
+    'in cima o in fondo. Il chip <b>⚡</b> in alto li rimette dentro.</div>';
   h+=list.slice(0,300).map((f,i)=>rowCard(f,i+1,i<3?'t':'')).join('');
   if(list.length>300)h+='<div class="empty">Mostrati i primi 300. Affina con filtri o ricerca.</div>';
   return h;}
@@ -129,7 +160,8 @@ function viewTopFlop(){const list=withData(pool()).sort(ordina);
   return h;}
 
 /* ================= CATEGORIE — score di allocazione ================= */
-function catPool(){return CATS.filter(c=>(!state.macro||c.macro===state.macro)&&(!state.cat||c.nome===state.cat)
+function catPool(){return CATS.filter(c=>(levaOn()||!(isLevaCat(c.macro)||isLevaCat(c.nome)))
+  &&(!state.macro||c.macro===state.macro)&&(!state.cat||c.nome===state.cat)
   &&(!state.q||c.nome.toLowerCase().includes(state.q)));}
 
 function viewCat(){let keys=catPool();
@@ -374,6 +406,10 @@ function openInfo(){
       'ETF non esiste. Su strumenti che replicano lo stesso indice ordinerebbe per TER credendo di '+
       'misurare altro.<br>'+
       '<b>Consistenza</b>: stesso motivo, uscirebbe 5/5 o 0/5 per ragioni di costo.<br>'+
+      '<b>Leva e inversi</b>: esclusi dalle classifiche <i>per impostazione predefinita</i>. Un 2x o '+
+      'un 3x non batte l\'indice, lo moltiplica — e con il ribilanciamento giornaliero perde valore '+
+      'nei mercati laterali. In una classifica per rendimento occuperebbe le prime posizioni per '+
+      'costruzione, non per merito. Il chip <b>⚡</b> in alto li rimette dentro quando servono.<br>'+
       '<b>Rating a stelle</b>: è relativo alla categoria e sui passivi premia di fatto il TER più '+
       'basso, che qui è già in chiaro.<br>'+
       '<b>Metodo di replica, politica di distribuzione, indice replicato</b>: lo screener non li '+
