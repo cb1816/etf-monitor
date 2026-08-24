@@ -233,10 +233,130 @@ function pickCat(c){state.cat=c;state.tab='cat';
   document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.tab==='cat'));
   buildCatSel();render();}
 
+/* ================= COPPIE E SPREAD =================
+   Metodologia §8. Tabella STATICA scelta a mano: sotto lo stesso nome commerciale
+   convivono prodotti diversissimi (S&P 500 QVM, Buyback, Low Vol, ESG Elite, perfino
+   futures sul VIX), quindi nessuna euristica sul nome — ISIN verificati uno per uno.
+   Le serie Morningstar sono TOTAL RETURN: verificato che Acc e Dist sullo stesso indice
+   coincidono entro mezzo punto su 5 anni, quindi si possono accoppiare senza guardare
+   la politica di distribuzione. */
+const COPPIE=[
+  {t:'Equal Weight − S&P 500', k:'ampiezza reale del rialzo americano',
+   a:'IE00BNGJJT35', b:'IE00B6YX5C33'},
+  {t:'Min Vol − MSCI World', k:'quanto costa (o rende) la difesa',
+   a:'IE00B8FHGS14', b:'IE00BJ0KDQ92'},
+  {t:'World hedged − World', k:'contributo puro del cambio',
+   a:'IE00B441G979', b:'IE00BJ0KDQ92'},
+  {t:'S&P 500 hedged − S&P 500', k:'contributo del solo dollaro',
+   a:'IE00B3ZW0K18', b:'IE00B6YX5C33'},
+  {t:'Value − MSCI World', k:'stile: valore contro mercato',
+   a:'IE00BL25JM42', b:'IE00BJ0KDQ92'},
+  {t:'Momentum − MSCI World', k:'stile: momentum contro mercato',
+   a:'IE00BL25JP72', b:'IE00BJ0KDQ92'},
+  {t:'High Yield € − Govt €', k:'premio pagato per il rischio di credito',
+   a:'IE00B66F4759', b:'IE00B4WXJJ64'},
+  {t:'Nasdaq 100 − S&P 500', k:'concentrazione sul tech',
+   a:'IE00BMFKG444', b:'IE00B6YX5C33'},
+  {t:'Europa − S&P 500', k:'geografia: Europa contro Stati Uniti',
+   a:'LU0446734104', b:'IE00B6YX5C33'},
+  {t:'Govt € 0-1 anno − Govt €', k:'duration: liquidità contro scadenze lunghe',
+   a:'IE00B3FH7618', b:'IE00B4WXJJ64'}
+];
+
+const serieDi=i=>{const r=SER[i];if(!r)return null;
+  const v=String(r).split(',').map(Number).filter(x=>isFinite(x));return v.length>6?v:null;};
+
+/* Spread = differenza fra le due curve di crescita, entrambe ribasate a 1 all'inizio
+   della finestra comune. Si tronca alla serie piu' corta: confrontare orizzonti diversi
+   darebbe un numero senza significato. */
+function calcolaCoppia(c){
+  const A=serieDi(c.a), B=serieDi(c.b);
+  if(!A||!B)return null;
+  const n=Math.min(A.length,B.length);
+  const ta=A.slice(-n), tb=B.slice(-n);
+  const g=v=>v.map(x=>(1+x/100)/(1+v[0]/100));
+  const ga=g(ta), gb=g(tb);
+  const curva=ga.map((x,i)=>(x-gb[i])*100);
+  // spread sugli ultimi k mesi, ricalcolato sulla finestra (non differenza di cumulati)
+  const su=k=>{if(n-1<k)return null;const j=n-1-k;
+    return Math.round(((ga[n-1]/ga[j])-(gb[n-1]/gb[j]))*10000)/100;};
+  return {curva, mesi:n-1, tot:Math.round(curva[n-1]*100)/100,
+          m3:su(3), m12:su(12), nomeA:nomeDi(c.a), nomeB:nomeDi(c.b)};
+}
+function nomeDi(isin){const f=F.find(x=>x[I.isin]===isin);return f?f[I.name]:null;}
+
+function sparkSpread(v){
+  const W=300,H=54,p=4,N=v.length;
+  const mn=Math.min(0,...v), mx=Math.max(0,...v), rng=(mx-mn)||1;
+  const X=i=>p+(N<2?0:i/(N-1))*(W-2*p);
+  const Y=x=>p+(1-(x-mn)/rng)*(H-2*p);
+  const pts=v.map((x,i)=>X(i).toFixed(1)+','+Y(x).toFixed(1)).join(' ');
+  const y0=Y(0);
+  return '<div class="spark"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="width:100%;height:54px;display:block">'+
+    '<line x1="'+p+'" y1="'+y0.toFixed(1)+'" x2="'+(W-p)+'" y2="'+y0.toFixed(1)+'" stroke="#2b3a57" stroke-width="1" stroke-dasharray="3 3"/>'+
+    '<polyline points="'+pts+'" fill="none" stroke="#a78bfa" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/></svg></div>';
+}
+
+function viewCoppie(){
+  const righe=COPPIE.map(c=>({c, r:calcolaCoppia(c)})).filter(x=>x.r);
+  if(!righe.length)return'';
+  let h='<div class="sec pair">Coppie e spread <button class="ipair" onclick="openCoppie()">i</button></div>';
+  righe.forEach(({c,r})=>{
+    const anni=(r.mesi/12).toFixed(r.mesi%12?1:0);
+    h+='<div class="paircard"><div class="ph"><div>'+
+      '<div class="pn">'+esc(c.t)+'</div><div class="pk">'+esc(c.k)+'</div></div>'+
+      '<div class="pv '+cls(r.tot)+'">'+fmt(r.tot)+'<div class="pu">'+anni+' anni</div></div></div>'+
+      sparkSpread(r.curva)+
+      '<div class="pmeta">3 mesi '+fmt(r.m3)+' · 12 mesi '+fmt(r.m12)+'<br>'+
+      esc(r.nomeA||c.a)+'<br>meno '+esc(r.nomeB||c.b)+'</div></div>';
+  });
+  const mancanti=COPPIE.length-righe.length;
+  if(mancanti)h+='<div class="note">'+mancanti+' coppie non calcolabili: manca la serie storica di almeno una gamba.</div>';
+  return h;
+}
+
+function openCoppie(){
+  document.getElementById('sheet').innerHTML=
+    '<button class="closex" onclick="closeOv()">✕</button>'+
+    '<h2>Coppie e spread</h2><div class="mc">Cosa sono e perché stanno qui</div>'+
+    '<div class="ip">Una coppia è una <b>sottrazione fra due ETF</b> che differiscono per una cosa sola. '+
+      'Il numero grande è quanto ha reso il primo <i>in più</i> del secondo sull\'intera finestra: '+
+      'niente a che vedere con un rendimento, è una <b>differenza</b>.</div>'+
+    '<div class="ip">Serve perché è l\'unica cosa che gli ETF permettono e i fondi no. Due ETF sullo stesso '+
+      'indice sono identici a meno del costo, quindi se ne cambio <i>un solo ingrediente</i> — la copertura '+
+      'del cambio, il peso uguale invece che per capitalizzazione — la differenza che resta <b>è</b> '+
+      'quell\'ingrediente, isolato.</div>'+
+    '<div class="ihead">Come si legge</div>'+
+    '<div class="ip"><b>Equal Weight − S&P 500</b> negativo significa che il rialzo americano l\'hanno fatto '+
+      'poche società molto grandi: l\'indice a pesi uguali resta indietro. È la misura dell\'ampiezza che '+
+      'nessuna media di categoria può darti.<br>'+
+      '<b>Hedged − unhedged</b> è il contributo del cambio, <u>al netto</u> del costo della copertura: la '+
+      'versione coperta ha un TER più alto e paga il rollo, quindi non è il cambio puro in senso stretto — '+
+      'è quello che il cambio ti è costato o reso <i>davvero, in mano</i>.<br>'+
+      '<b>HY € − Govt €</b> è il premio incassato per il rischio di credito. Quando si comprime, il rischio '+
+      'viene pagato poco.</div>'+
+    '<div class="ihead">Come sono calcolate</div>'+
+    '<div class="ip">Le due serie mensili Morningstar vengono <b>ribasate a zero</b> all\'inizio della finestra '+
+      'comune e troncate alla più corta. Le serie sono <b>total return</b>: verificato che due ETF sullo stesso '+
+      'indice, uno ad accumulazione e uno a distribuzione, coincidono entro mezzo punto su cinque anni. '+
+      'Il grafico è lo spread nel tempo, la linea tratteggiata è lo zero.</div>'+
+    '<div class="ihead">Limiti dichiarati</div>'+
+    '<div class="ip">La tabella è <b>statica e scelta a mano</b>, ISIN per ISIN: sotto lo stesso nome '+
+      'commerciale convivono prodotti diversissimi, e un\'euristica automatica prima o poi accoppierebbe '+
+      'l\'indice sbagliato.<br><b>Small cap − large cap manca</b>: gli ETF World Small Cap quotati a Milano '+
+      'hanno meno di un anno di storia, e una coppia senza storia non dice niente.<br>'+
+      'Le gambe sono ETF reali, quindi lo spread include il TER di entrambi. Su orizzonti lunghi qualche '+
+      'decimo l\'anno di differenza di costo finisce dentro il numero.</div>'+
+    '<div class="note">Strumento informativo, non consulenza. Le performance passate non sono indicative '+
+      'di quelle future.</div>';
+  document.getElementById('ov').classList.add('on');
+}
+
 /* ================= IDEE ================= */
 function viewIdee(){
   const base=catPool().filter(c=>c.score!==null);
-  let h='<div class="note" style="margin:12px 4px">Le idee stanno a livello di <b>categoria</b>: '+
+  let h=viewCoppie();
+  h+='<div class="note" style="margin:12px 4px">Le idee stanno a livello di <b>categoria</b>: '+
     'su un ETF la scelta che conta e\' dove ti posizioni, non quale replica compri. '+
     'Dentro ogni categoria, gli strumenti sono ordinati per costo.</div>';
   if(!base.length)return h+'<div class="empty">Nessuna categoria con score per questa selezione.</div>';
