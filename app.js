@@ -249,7 +249,7 @@ const COPPIE=[
    a:'IE00B441G979', b:'IE00BJ0KDQ92'},
   {t:'S&P 500 hedged − S&P 500', k:'contributo del solo dollaro',
    a:'IE00B3ZW0K18', b:'IE00B6YX5C33'},
-  {t:'Value − MSCI World', k:'stile: valore contro mercato',
+  {t:'Enhanced Value − MSCI World', k:'stile: value aggressivo (MSCI World Enhanced Value)',
    a:'IE00BL25JM42', b:'IE00BJ0KDQ92'},
   {t:'Momentum − MSCI World', k:'stile: momentum contro mercato',
    a:'IE00BL25JP72', b:'IE00BJ0KDQ92'},
@@ -343,7 +343,10 @@ function openCoppie(){
     '<div class="ihead">Limiti dichiarati</div>'+
     '<div class="ip">La tabella è <b>statica e scelta a mano</b>, ISIN per ISIN: sotto lo stesso nome '+
       'commerciale convivono prodotti diversissimi, e un\'euristica automatica prima o poi accoppierebbe '+
-      'l\'indice sbagliato.<br><b>Small cap − large cap manca</b>: gli ETF World Small Cap quotati a Milano '+
+      'l\'indice sbagliato. Caso vero, verificato il 24/08/2026: l\'ETF <i>Xtrackers MSCI World Value</i> '+
+      'non replica il MSCI World Value ma il <b>MSCI World Enhanced Value</b>, un value molto più '+
+      'aggressivo — il nome commerciale non coincide col benchmark, e qui la coppia è etichettata per '+
+      'quello che replica davvero.<br><b>Small cap − large cap manca</b>: gli ETF World Small Cap quotati a Milano '+
       'hanno meno di un anno di storia, e una coppia senza storia non dice niente.<br>'+
       'Le gambe sono ETF reali, quindi lo spread include il TER di entrambi. Su orizzonti lunghi qualche '+
       'decimo l\'anno di differenza di costo finisce dentro il numero.</div>'+
