@@ -578,7 +578,14 @@ function openInfo(){
   document.getElementById('ov').classList.add('on');}
 
 /* ---------- avvio ---------- */
-function render(){buildCatSel();const v=document.getElementById('view');
+/* I chip del periodo governano solo le viste sullo STRUMENTO (Classifica, Top/Flop),
+   dove val(f)=f[state.metric]. Categorie, Mappa e Idee lavorano sulla CATEGORIA e il
+   trend li' e' fisso a 6 mesi (metodologia §2): la riga si nasconde invece di restare
+   accesa senza cambiare niente al tocco. */
+const USA_METRICA={rank:1,topflop:1};
+function render(){buildCatSel();
+  if(mc)mc.style.display=USA_METRICA[state.tab]?'':'none';
+  const v=document.getElementById('view');
   v.innerHTML=state.tab==='rank'?viewRank():state.tab==='topflop'?viewTopFlop():
     state.tab==='cat'?viewCat():state.tab==='mappa'?viewMappa():viewIdee();
   window.scrollTo(0,0);}
