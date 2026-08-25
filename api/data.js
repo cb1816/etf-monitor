@@ -14,6 +14,15 @@
 const fs = require('fs');
 const path = require('path');
 
+/* Fine delle serie storiche di data/series.json. Il file e' STATICO: raccolto il
+   24/07/2026, ultimo punto mensile 30/06/2026. La data non e' scritta dentro il file:
+   e' stata ricavata allineando i rendimenti YTD e 1/3/6/12 mesi delle serie con quelli
+   dello screener (il fit e' netto su YTD: dicembre 2025 cade 6 punti prima della fine).
+   Le coppie e i grafici della scheda si fermano qui, non all'ultimo aggiornamento.
+   Se un giorno si rigenerano le serie, aggiornare QUESTA riga: e' l'unico posto dove
+   la data e' scritta. */
+const SERIE_FINE = '30/06/2026';
+
 const API = 'https://lt.morningstar.com/api/rest.svc/9vehuxllxs/security/screener';
 const DATAPOINTS = [
   'isin', 'SecId', 'Name', 'categoryName',
@@ -320,6 +329,7 @@ function build(rows, series) {
       date, dataChiusura: modaData,
       source: 'Morningstar Italia · via Vercel',
       nTot: funds.length, nData, nSeries,
+      serieFine: SERIE_FINE,
       nCat: cats.length,
       nCatSottoSoglia: cats.filter(c => c.n < MIN_N).length,
       nNoTer: funds.filter(f => f[13] === null).length,
@@ -346,6 +356,7 @@ module.exports = async (req, res) => {
       const snap = upgradeSnapshot(loadJSON('snapshot.json'));
       snap.series = series;
       snap.meta.nSeries = Object.keys(series).length;
+      snap.meta.serieFine = SERIE_FINE;
       snap.meta.source += ' · snapshot (refresh fallito: ' + String(err.message || err).slice(0, 80) + ')';
       res.setHeader('Cache-Control', 's-maxage=900');
       res.status(200).json(snap);
