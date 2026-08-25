@@ -240,6 +240,16 @@ function pickCat(c){state.cat=c;state.tab='cat';
    Le serie Morningstar sono TOTAL RETURN: verificato che Acc e Dist sullo stesso indice
    coincidono entro mezzo punto su 5 anni, quindi si possono accoppiare senza guardare
    la politica di distribuzione. */
+/* La fine delle serie arriva da meta.serieFine (api/data.js). Se manca — dati vecchi
+   in cache — si dice comunque che il file è statico, senza inventare una data. */
+const SFIN=META.serieFine||null;
+function notaSerie(){
+  return '<div class="note">Le serie storiche sono un <b>file statico</b> nel repo'+
+    (SFIN?', fermo al <b>'+esc(SFIN)+'</b>':'')+': le coppie si fermano lì, mentre '+
+    'rendimenti e score qui sotto sono aggiornati'+
+    (META.dataChiusura?' alla chiusura del '+esc(META.dataChiusura):'')+'.</div>';
+}
+
 const COPPIE=[
   {t:'Equal Weight − S&P 500', k:'ampiezza reale del rialzo americano',
    a:'IE00BNGJJT35', b:'IE00B6YX5C33'},
@@ -301,6 +311,7 @@ function viewCoppie(){
   const righe=COPPIE.map(c=>({c, r:calcolaCoppia(c)})).filter(x=>x.r);
   if(!righe.length)return'';
   let h='<div class="sec pair">Coppie e spread <button class="ipair" onclick="openCoppie()">i</button></div>';
+  h+=notaSerie();
   righe.forEach(({c,r})=>{
     const anni=(r.mesi/12).toFixed(r.mesi%12?1:0);
     h+='<div class="paircard"><div class="ph"><div>'+
@@ -340,6 +351,12 @@ function openCoppie(){
       'comune e troncate alla più corta. Le serie sono <b>total return</b>: verificato che due ETF sullo stesso '+
       'indice, uno ad accumulazione e uno a distribuzione, coincidono entro mezzo punto su cinque anni. '+
       'Il grafico è lo spread nel tempo, la linea tratteggiata è lo zero.</div>'+
+    '<div class="ihead">Fin dove arrivano</div>'+
+    '<div class="ip">Le serie stanno in un <b>file statico</b> nel repo, non arrivano dallo '+
+      'screener a ogni caricamento: l\'ultimo punto mensile è '+(SFIN?'il <b>'+esc(SFIN)+'</b>':'più vecchio dell\'ultimo aggiornamento dei dati')+
+      '. Le coppie quindi <b>non vedono le ultime settimane</b>, mentre i rendimenti e gli score '+
+      'delle categorie sì. Vanno lette come «com\'è andata la relazione fino a quella data», '+
+      'non come «com\'è andata ieri».</div>'+
     '<div class="ihead">Limiti dichiarati</div>'+
     '<div class="ip">La tabella è <b>statica e scelta a mano</b>, ISIN per ISIN: sotto lo stesso nome '+
       'commerciale convivono prodotti diversissimi, e un\'euristica automatica prima o poi accoppierebbe '+
@@ -397,7 +414,7 @@ function viewIdee(){
   return h;}
 
 /* ================= GRAFICO ================= */
-function svgLine(vals,up,srcLabel,leftLabel){
+function svgLine(vals,up,srcLabel,leftLabel,rightLabel){
   const W=320,H=100,pad=6,N=vals.length;
   let mn=Math.min(...vals),mx=Math.max(...vals);if(mn===mx){mn-=1;mx+=1;}const rng=mx-mn;
   const X=i=>pad+(N<2?0:i/(N-1))*(W-2*pad);
@@ -409,13 +426,13 @@ function svgLine(vals,up,srcLabel,leftLabel){
     '<polygon points="'+area+'" fill="'+col+'" opacity="0.08"/>'+
     (100>=mn&&100<=mx?'<line x1="'+pad+'" y1="'+y100.toFixed(1)+'" x2="'+(W-pad)+'" y2="'+y100.toFixed(1)+'" stroke="#2b3a57" stroke-width="1" stroke-dasharray="3 3"/>':'')+
     '<polyline points="'+pts+'" fill="none" stroke="'+col+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'+
-    '<div class="chleg"><span>'+leftLabel+'</span><span>'+srcLabel+'</span><span>oggi</span></div></div>';}
+    '<div class="chleg"><span>'+leftLabel+'</span><span>'+srcLabel+'</span><span>'+(rightLabel||'oggi')+'</span></div></div>';}
 function growthChart(f){
   const raw=SER[f[I.isin]];
   if(raw){const cum=String(raw).split(',').map(Number).filter(x=>isFinite(x));
     if(cum.length>=6){const vals=cum.map(v=>100*(1+v/100));const up=vals[vals.length-1]>=vals[0];
       const mo=cum.length-1;const left=mo>=60?'5 anni fa':mo>=36?'~3 anni fa':(mo+' mesi fa');
-      return svgLine(vals,up,'storico Morningstar · base 100',left);}}
+      return svgLine(vals,up,'storico Morningstar · base 100',left,SFIN||'oggi');}}
   const P=[];const push=(mo,v)=>{if(v!=null&&isFinite(v))P.push([mo,v]);};
   push(0,100);
   if(f[I.w1]!=null)push(0.25,100/(1+f[I.w1]/100));
