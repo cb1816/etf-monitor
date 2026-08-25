@@ -23,6 +23,8 @@ categoria, gli ETF si giudicano sulla categoria stessa e poi sull'efficienza del
 - Deploy: automatico a ogni commit su `main`, progetto `etf-monitor` nel team `cb1816s-projects`
 - File: `index.html` (loader), `app.js` (interfaccia), `api/data.js` (dati e metriche),
   `data/series.json` (storici), `data/snapshot.json` (fallback statico)
+- Documenti: questo file (impianto analitico) e **`OPERATIVO.md`** (testata, PWA, canali di
+  scrittura verso il repo e verifiche dopo il commit)
 - Gemella fondi: repo `oicr-monitor`, sito `https://oicr-monitor.vercel.app`. Le due app si
   linkano col pulsantino fisso "⇄" in basso a destra.
 
