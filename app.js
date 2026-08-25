@@ -22,6 +22,10 @@ function num(v,d){if(v===null||v===undefined)return'—';return v.toFixed(d===un
 function fmtAcc(v){if(v===null||v===undefined)return'—';return(v>0?'+':'')+v.toFixed(1)+' pt'}
 function cls(v){if(v===null||v===undefined)return'zero';return v>0.05?'pos':(v<-0.05?'neg':'zero')}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+/* Morningstar restituisce closePriceDate in ISO (2026-08-24). In interfaccia le date
+   si mostrano sempre in gg/mm/aaaa: quello che e' gia' italiano passa intatto. */
+function itDate(s){if(s==null||s==='')return s;const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(s));
+  return m?m[3]+'/'+m[2]+'/'+m[1]:String(s);}
 function eur(v){if(v===null||v===undefined)return'—';return v>=1000?(v/1000).toFixed(1)+' mld €':v.toFixed(0)+' mln €'}
 function jsq(s){return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
 
@@ -247,7 +251,7 @@ function notaSerie(){
   return '<div class="note">Le serie storiche sono un <b>file statico</b> nel repo'+
     (SFIN?', fermo al <b>'+esc(SFIN)+'</b>':'')+': le coppie si fermano lì, mentre '+
     'rendimenti e score qui sotto sono aggiornati'+
-    (META.dataChiusura?' alla chiusura del '+esc(META.dataChiusura):'')+'.</div>';
+    (META.dataChiusura?' alla chiusura del '+esc(itDate(META.dataChiusura)):'')+'.</div>';
 }
 
 const COPPIE=[
@@ -502,7 +506,7 @@ function detail(isin){const f=F.find(x=>x[I.isin]===isin);if(!f)return;
        'background:#2563eb;color:#fff;border-radius:9px;text-decoration:none;font-weight:600;font-size:13px" '+
        'href="https://www.justetf.com/it/etf-profile.html?isin='+encodeURIComponent(f[I.isin])+'">Scheda completa JustETF ↗</a>';
   b+='<div class="note"><span class="pill">Linee/valute: '+(f[I.nc]||1)+'</span></div>'+
-    '<div class="note">Fonte: Morningstar · rendimenti in EUR'+(META.dataChiusura?' alla chiusura del '+esc(META.dataChiusura):'')+
+    '<div class="note">Fonte: Morningstar · rendimenti in EUR'+(META.dataChiusura?' alla chiusura del '+esc(itDate(META.dataChiusura)):'')+
     '. Liquidità e spread denaro-lettera <b>non</b> sono considerati: non sono nello screener, '+
     'e su uno strumento sottile possono valere più di anni di TER. '+
     'Informativa, non sollecitazione all\'investimento.</div>';
@@ -559,7 +563,7 @@ function openInfo(){
       'questa classifica <b>non</b> lo considera.</div>'+
     '<div class="ihead">Qualità dei dati</div>'+
     '<div class="ip">'+META.nTot.toLocaleString('it')+' strumenti · '+(META.nCat||'—')+' categorie'+
-      (META.dataChiusura?' · chiusura '+esc(META.dataChiusura):'')+'.<br>'+
+      (META.dataChiusura?' · chiusura '+esc(itDate(META.dataChiusura)):'')+'.<br>'+
       (META.nNoTer||0)+' senza TER · '+(META.nStale||0)+' con prezzo di chiusura più vecchio · '+
       (META.nCatSottoSoglia||0)+' categorie sotto i '+MINN+' strumenti, senza metriche relative.</div>'+
     '<div class="ihead">Nota fiscale</div>'+
