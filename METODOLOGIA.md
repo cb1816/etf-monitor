@@ -4,7 +4,8 @@ App per ETF/ETC/ETP quotati su Borsa Italiana. Gemella di **OICR Monitor**, ma c
 **impianto analitico diverso**: gli OICR si giudicano sulla bravura del gestore dentro la
 categoria, gli ETF si giudicano sulla categoria stessa e poi sull'efficienza dello strumento.
 
-> **Stato**: aggiornato il **24/08/2026**, dopo l'esclusione di default di leva e inversi.
+> **Stato**: aggiornato il **25/08/2026**, dopo le coppie e spread (§8) e la dichiarazione
+> della fine delle serie storiche (§12).
 > Questo file è la fonte di verità e vive **nel repo**: la copia nel progetto Claude ne è un
 > riflesso, non il contrario. Dove una cosa non è stata fatta, è detto esplicitamente.
 
@@ -35,7 +36,7 @@ CORS, niente robots.txt, niente browser. La cache edge è di 6 ore. Da questo di
 
 **Regola operativa**: dopo ogni modifica ad `app.js`, alzare il cache-bust in `index.html`
 (`app.js?v=N` → `v=N+1`), o il telefono continua a servire la versione vecchia dalla cache.
-Al 24/08/2026 siamo a `v=8`.
+Al 25/08/2026 siamo a `v=12`.
 
 Le modifiche ai file si fanno **nell'editor web di GitHub dal Chrome dell'utente**, mai con
 download e upload manuali (i browser rinominano i duplicati e su GitHub finiscono file nuovi
@@ -118,7 +119,8 @@ legale. Il criterio "replica fisica/campionata/sintetica" **non è calcolabile**
 campo che distingua ETF da ETC da ETN.** La separazione degli ibridi è per categoria Morningstar,
 non per wrapper giuridico — e l'app lo dice invece di lasciarlo credere.
 
-`closePriceDate`: la moda è la data di riferimento. 4 strumenti hanno una data più vecchia (fino
+`closePriceDate`: la moda è la data di riferimento. Arriva in **ISO** (`2026-08-24`); `itDate()`
+in `app.js` la porta a `gg/mm/aaaa` ovunque si mostri. 4 strumenti hanno una data più vecchia (fino
 al 2016) e sono marcati "prezzo vecchio".
 
 ---
@@ -238,12 +240,62 @@ ex-USA, S&P 500 vs S&P 500 Equal Weight, IMI vs standard) non vanno fusi.
 
 ---
 
-## 8. Coppie e spread — non implementato
+## 8. Coppie e spread — in produzione dal 24/08/2026
 
-La cosa più interessante che solo gli ETF permettono: Equal Weight − S&P 500 per l'ampiezza reale,
-small − large, Min Vol − mercato, HY − govt, e soprattutto **hedged − unhedged sullo stesso indice**
-per isolare il contributo puro del cambio. Richiede una tabella statica di ~20 coppie ISIN scelte a
-mano. È una sessione di lavoro a sé.
+Due strumenti che differiscono per **una cosa sola**, sottratti: quello che resta *è* quella cosa,
+isolata. L'ampiezza vera del rialzo, il contributo del cambio, il premio di credito. È l'unica
+analisi che gli ETF permettono e i fondi no: fra due gestori attivi la differenza è il gestore.
+
+Il blocco sta in testa alla scheda **Idee**, in viola, con un pulsante "i" che spiega tutto.
+
+### Le 10 coppie — tabella statica, `const COPPIE` in `app.js`
+
+| Coppia | Cosa isola | Gamba A | Gamba B |
+|---|---|---|---|
+| Equal Weight − S&P 500 | ampiezza reale del rialzo americano | IE00BNGJJT35 | IE00B6YX5C33 |
+| Min Vol − MSCI World | quanto costa (o rende) la difesa | IE00B8FHGS14 | IE00BJ0KDQ92 |
+| World hedged − World | contributo puro del cambio | IE00B441G979 | IE00BJ0KDQ92 |
+| S&P 500 hedged − S&P 500 | contributo del solo dollaro | IE00B3ZW0K18 | IE00B6YX5C33 |
+| Enhanced Value − MSCI World | stile: value aggressivo | IE00BL25JM42 | IE00BJ0KDQ92 |
+| Momentum − MSCI World | stile: momentum contro mercato | IE00BL25JP72 | IE00BJ0KDQ92 |
+| High Yield € − Govt € | premio pagato per il rischio di credito | IE00B66F4759 | IE00B4WXJJ64 |
+| Nasdaq 100 − S&P 500 | concentrazione sul tech | IE00BMFKG444 | IE00B6YX5C33 |
+| Europa − S&P 500 | geografia: Europa contro Stati Uniti | LU0446734104 | IE00B6YX5C33 |
+| Govt € 0-1 anno − Govt € | duration: liquidità contro scadenze lunghe | IE00B3FH7618 | IE00B4WXJJ64 |
+
+Erano previste ~20 coppie: dieci sono quelle che reggono il controllo ISIN per ISIN sull'universo
+di Milano. Small − large è la principale mancante (vedi sotto).
+
+### Come si calcola
+
+Le due serie mensili di `data/series.json` si **ribasano a zero** all'inizio della finestra comune
+e si **troncano alla più corta** — confrontare orizzonti diversi darebbe un numero senza
+significato. La scheda mostra la sparkline dello spread nel tempo, il totale sulla finestra, e
+3 e 12 mesi **ricalcolati sulla finestra**, non come differenza di cumulati.
+
+**Le serie sono total return**: verificato che due ETF sullo stesso indice, uno ad accumulazione e
+uno a distribuzione, coincidono entro mezzo punto su cinque anni. Quindi le gambe si possono
+accoppiare senza guardare la politica di distribuzione.
+
+### Perché a mano, ISIN per ISIN, e non per euristica sul nome
+
+Sotto lo stesso nome commerciale convivono prodotti diversissimi (S&P 500 QVM, Buyback, Low Vol,
+ESG Elite, perfino futures sul VIX). Caso vero, trovato il 24/08/2026: l'ETF **IE00BL25JM42**,
+venduto come *Xtrackers MSCI World Value*, replica in realtà il **MSCI World Enhanced Value**, un
+value molto più aggressivo — se ne è accorti perché il +58% a 12 mesi era implausibile per un value
+standard, mentre un concorrente (HSBC World Value Screened) faceva peggio del mercato. Verificato su
+justETF e sul sito DWS, l'etichetta della coppia è stata corretta. Un'euristica sul nome avrebbe
+accoppiato l'indice sbagliato senza dirlo.
+
+### Limiti, tutti dichiarati dentro l'app
+
+- **Small cap − large cap manca**: gli ETF World Small Cap quotati a Milano hanno meno di un anno
+  di storia, e una coppia senza storia non dice niente.
+- Le gambe sono ETF reali, quindi lo spread **include il TER di entrambe**: su orizzonti lunghi
+  qualche decimo l'anno di differenza di costo finisce dentro il numero.
+- **Le serie sono ferme al 30/06/2026** (§12): le coppie non vedono le ultime settimane, mentre
+  rendimenti e score di categoria sì. Dal 25/08/2026 l'app lo scrive sopra il blocco, nel pannello
+  "i" e nella legenda del grafico di scheda.
 
 ---
 
@@ -327,6 +379,14 @@ cumulato % con base 0. In produzione ne vengono servite 2.182 (quelle degli ISIN
 La scheda strumento usa la serie reale quando c'è e ripiega sulla stima dai rendimenti quando
 manca, **dichiarando quale delle due sta mostrando**.
 
+**La fine delle serie è dichiarata nell'app dal 25/08/2026.** Il file è **statico**: raccolto il
+24/07/2026, ultimo punto mensile **30/06/2026**. Quella data **non è scritta dentro il file** — è
+stata ricavata allineando i rendimenti YTD e 1/3/6/12 mesi delle serie con quelli dello screener
+(su YTD il fit è netto: dicembre 2025 cade sei punti prima della fine). Vive in **una riga sola**,
+`SERIE_FINE` in `api/data.js`, esposta come `meta.serieFine`: se un giorno si rigenerano le serie,
+si aggiorna lì e basta. `app.js` la mostra sopra le coppie, nel pannello "i" e nella legenda del
+grafico di scheda — dove prima c'era scritto "oggi", che da luglio era falso.
+
 ⚠️ Correzione: fino al 20/08/2026 la metodologia diceva che gli storici ETF "non erano ancora
 stati raccolti". **È falso**, ed è stato ripetuto per errore anche nella prima riscrittura di
 questo documento. Erano già nel repo.
@@ -379,17 +439,16 @@ l'ufficio fiscale prima di finire in un testo mostrato al cliente.
 
 ## 15. Prossimi passi, in ordine di resa
 
-1. **Coppie e spread** (§8) — la cosa che solo gli ETF permettono, e che l'app non ha.
-2. **Gruppo-indice ed efficienza di replica** (§7, §6.4) — rende la scheda categoria una vera
+1. **Gruppo-indice ed efficienza di replica** (§7, §6.4) — rende la scheda categoria una vera
    classifica di selezione invece di un elenco ordinato per costo.
-3. **Δ rango** — serve un archivio di rilevazioni settimanali (`data/snapshots.json` nel repo,
+2. **Δ rango** — serve un archivio di rilevazioni settimanali (`data/snapshots.json` nel repo,
    `data -> {categoria: score}`, ~4 KB a settimana). Su Vercel non c'è persistenza fra richieste,
    quindi va scritto nel repo da un job. È l'unica cosa per cui varrebbe la pena rimettere un
    task settimanale.
-4. **Drawdown a 5 anni e correlazioni** dalle serie già in repo (§9, §12).
-5. **Ponte OICR ↔ ETF** — per ogni categoria, l'ETF di riferimento: "questo gestore attivo vale il
+3. **Drawdown a 5 anni e correlazioni** dalle serie già in repo (§9, §12).
+4. **Ponte OICR ↔ ETF** — per ogni categoria, l'ETF di riferimento: "questo gestore attivo vale il
    suo costo?" diventa una sottrazione visibile. È l'uso più forte di avere le due app nello
    stesso impianto.
-6. **Liquidità da Borsa Italiana** come secondo canale mensile (§6.6).
-7. **Pesi del composito** (§5) e eventuale banda morta sugli stati, se dopo qualche settimana i
+5. **Liquidità da Borsa Italiana** come secondo canale mensile (§6.6).
+6. **Pesi del composito** (§5) e eventuale banda morta sugli stati, se dopo qualche settimana i
    dati suggeriscono che servono.
