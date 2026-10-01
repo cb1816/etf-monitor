@@ -94,7 +94,6 @@ header.fopen{position:relative}
 .badges{margin-top:2px;display:flex;gap:4px;flex-wrap:wrap}
 .qbadge{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:5px}
 .q1{background:rgba(34,197,94,.16);color:var(--pos)}.q4{background:rgba(244,83,107,.16);color:var(--neg)}
-.mbadge{background:rgba(255,122,69,.18);color:var(--hot)}
 .sec{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:16px 4px 6px}
 .sec.flop{color:var(--neg)}.sec.top{color:var(--pos)}.sec.hot{color:var(--hot)}
 .sec.pair{color:var(--pair);display:flex;align-items:center;gap:8px}
@@ -108,14 +107,6 @@ header.fopen{position:relative}
 .paircard .pmeta{font-size:10.5px;color:var(--mut);margin-top:6px;line-height:1.45}
 .spark{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:6px 6px 2px;margin-top:7px}
 .empty{color:var(--mut);text-align:center;padding:40px 10px;font-size:13px}
-.catcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:8px;overflow:hidden}
-.cathead{display:flex;align-items:center;gap:8px;padding:11px 12px;cursor:pointer}
-.cathead .cn{flex:1;font-size:13.5px;font-weight:700;min-width:0}
-.cathead .cval{text-align:right;flex:0 0 auto}
-.cathead .cv{font-size:15px;font-weight:800}
-.cathead .cmeta{font-size:10.5px;color:var(--mut)}
-.catbody{border-top:1px solid var(--line);padding:4px 12px 8px;display:none}
-.catcard.open .catbody{display:block}
 .mini{display:flex;justify-content:space-between;gap:8px;padding:6px 0;font-size:12.5px;border-bottom:1px solid rgba(255,255,255,.04);cursor:pointer}
 .mini:last-child{border-bottom:none}.mini .mn{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mlbl{font-size:10px;color:var(--mut);margin:6px 0 2px;text-transform:uppercase;letter-spacing:.5px}
@@ -153,8 +144,8 @@ header.fopen{position:relative}
 .suite a,.suite span,.suite button{font-size:12px;font-weight:600;color:var(--mut);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;line-height:1.4;background:none;font-family:inherit;cursor:pointer}
 .suite span{color:#04101f;background:var(--accent);border-color:var(--accent)}
 .suite a:hover,.suite button:hover{color:var(--txt)}
+@media (hover:none) and (pointer:coarse){#clienti{display:none !important}}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;max-width:min(92vw,460px);z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.4)}
-.suite a.home{color:var(--accent);border-color:transparent;padding-left:2px}
 /* Scheda categoria v2 (01/10/2026): sezioni 1/2, gruppi-indice, barre divergenti */
 .chev{flex:0 0 auto;color:var(--mut);font-size:18px;line-height:1}
 .ctag{display:inline-block;margin-top:5px;font-size:10px;font-weight:700;color:var(--accent);background:rgba(79,156,255,.13);border-radius:5px;padding:2px 6px}
@@ -238,7 +229,7 @@ nav button:hover{background:rgba(255,255,255,.05)}
 .vtit{font-size:19px}
 #view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px;align-items:start}
 #view>*{min-width:0}
-#view>.sec,#view>.note,#view>.empty,#view>.sortrow{grid-column:1/-1}
+#view>.sec,#view>.note,#view>.empty{grid-column:1/-1}
 #view>.sec:first-child{margin-top:0}
 #view:has(.maprow){display:block;max-width:980px}
 .mlbl2{flex-basis:34%}
@@ -316,25 +307,21 @@ body>a[href*="oicr-monitor"]{display:none}
   }
   function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=19';
     s.onload=function(){try{head(d)}catch(e){}};document.body.appendChild(s);}
-  function withFilter(d){
-    return Promise.resolve(d)
-      .catch(function(){return d});
-  }
   fetch('/api/data').then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
-    .then(withFilter).then(run)
-    .catch(function(){fetch('data/snapshot.json').then(function(r){return r.json()}).then(function(d){d.meta.source+=' · snapshot offline';return withFilter(d)}).then(run)});
+    .then(run)
+    .catch(function(){fetch('data/snapshot.json').then(function(r){return r.json()}).then(function(d){d.meta.source+=' · snapshot offline';return d}).then(run)});
 })();
 </script>
 <a href="https://oicr-monitor.vercel.app" style="position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));right:14px;z-index:50;background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:20px;font-size:12px;text-decoration:none;border:1px solid #334155">⇄ Fondi</a>
 <script>
 /* Voce "Clienti" della barra della suite: apre il CRM (Portfolio Workbench) sul Mac con il collegamento
-   portfolioworkbench://apri, come in My Way (clienti.js). Nessun dato passa di qui. */
+   portfolioworkbench://apri, come in My Way (clienti.js); fuori dal Mac il tasto sparisce. Nessun dato passa di qui. */
 (function(){var b=document.getElementById('clienti');if(!b)return;
+  // Fuori dal Mac (iPhone, iPad, altri computer) il tasto non può aprire nulla: lo si toglie, come in My Way e Magüt.
+  if(!(/Mac/.test(navigator.platform||navigator.userAgent)&&!/iPhone|iPad/.test(navigator.userAgent)&&navigator.maxTouchPoints<2)){b.remove();return;}
   var avviso=function(t){var d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;
     document.body.appendChild(d);setTimeout(function(){d.remove()},7000);};
   b.addEventListener('click',function(){
-    var mac=/Mac/.test(navigator.platform||navigator.userAgent)&&!/iPhone|iPad/.test(navigator.userAgent)&&navigator.maxTouchPoints<2;
-    if(!mac){avviso('Clienti è il CRM e si apre solo sul Mac. I dati dei clienti non escono dal Mac.');return;}
     var aperto=false,via=function(){aperto=true;};
     window.addEventListener('blur',via,{once:true});document.addEventListener('visibilitychange',via,{once:true});
     location.href='portfolioworkbench://apri';avviso('Apro il CRM sul Mac… ci vuole qualche secondo.');
