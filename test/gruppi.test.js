@@ -42,6 +42,20 @@ eq('coperto non dichiarato in Altro', k('Xtrackers MSCI Japan ETF 4C EUR', 'Azio
 eq('leva esclusa', k('Xtrackers S&P 500 2x Leveraged Daily Swap ETF', 'Trading - Azionario Leveraged/Inverse'), null);
 eq('oro su futures separato', k('WisdomTree Gold ETC EUR', 'Materie Prime - Metalli Preziosi'), null);
 
+/* intrusi trovati sui dati live la sera del 01/10/2026 */
+eq('Comm Svs', k('Franklin S&P 500 Comm Svs ETF $ Acc EUR', 'Azionari Settore Comunicazioni'), 'S&P 500 + Sett. Comunicazioni');
+eq('Com Services', k('Xtrackers MSCI World Com Services ETF 1C EUR', 'Azionari Settore Comunicazioni'), 'MSCI World + Sett. Comunicazioni');
+eq('Finl', k('Stt Strt SPDR MSCI World FinlETF $ Acc EUR', 'Azionari Settore Servizi Finanziari'), 'MSCI World + Sett. Finanziari');
+eq('Utils', k('Stt Strt SPDR MSCI World UtilsETF $ Acc EUR', 'Azionari Settore Servizi di Pubblica Utilità'), 'MSCI World + Sett. Utilities');
+eq('Smcndcts', k('FAM MSCI Wrld Smcndcts&SmcndctEqp20%CapA', 'Azionari Settore Tecnologia'), 'MSCI World + Capped + Sett. Tecnologia');
+eq('Metals and Mining', k('FAM MSCI World Metals and Mining ETF A', 'Azionari Settore Risorse Naturali'), 'MSCI World + Sett. Materiali');
+eq('Em Ex Chn', k('Amundi MSCI Em Ex Chn Swap UCITS ETF Acc EUR', 'Azionari Paesi Emergenti ex-Cina'), 'MSCI EM + ex-China');
+eq('opzioni Buffer', k('Glbl X S&P 500® Qt Buffer ETF A USD Acc EUR', 'Alternativi Trading Opzioni'), null);
+eq('opzioni Optn', k('Infrstrctr Cptl S&P 500 Optn IncmETF$Dis EUR', 'Alternativi Trading Opzioni'), null);
+/* rete di sicurezza: settoriale con nome irriconoscibile non entra nel gruppo puro */
+eq('settore ignoto fuori', k('Pippo MSCI World Xyz ETF', 'Azionari Settore Tecnologia'), null);
+eq('Stoxx 600 Flex-Cap resta', k('Fineco AM Amundi Stoxx Europe 600 ETFAcc', 'Azionari Europa Flex-Cap'), 'Stoxx Europe 600');
+
 /* calcolo: tre gemelli identici tranne una deriva costante di -0,5% l'anno */
 const serie = d => { let c = 1; const v = ['0']; for (let i = 1; i <= 40; i++) { c *= (1 + 0.01) * Math.pow(1 + d, 1 / 12); v.push(((c - 1) * 100).toFixed(4)); } return v.join(','); };
 const funds = [['A', 'X MSCI Japan ETF', 'Azionari Giappone Large Cap Blend'],
