@@ -28,7 +28,7 @@ const I={isin:0,name:1,cat:2,macro:3,ytd:4,m1:5,m3:6,m6:7,r1:8,r3:9,r5:10,star:1
          tick:23,stale:24,ccy:25};
 const METRICS=[['1 sett.',16],['1 mese',5],['3 mesi',6],['6 mesi',7],['YTD',4],
                ['1 anno',8],['3 anni p.a.',9],['5 anni p.a.',10]];
-let state={metric:7,macro:null,cat:null,q:'',tab:'rank',catSort:'score',tipo:null,leva:false};
+let state={metric:7,macro:null,cat:null,q:'',tab:'rank',catSort:'score',catInv:false,tipo:null,leva:false};
 const mLabel=()=>(METRICS.find(m=>m[1]===state.metric)||METRICS[3])[0];
 
 document.getElementById('cnt').textContent=
@@ -189,18 +189,23 @@ function catPool(){return CATS.filter(c=>(levaOn()||!(isLevaCat(c.macro)||isLeva
 function viewCat(){let keys=catPool();
   if(!keys.length)return'<div class="empty">Nessuna categoria per questa selezione.</div>';
   keys=keys.slice();
-  if(state.catSort==='score')keys.sort((a,b)=>{
-    if(a.score===b.score)return a.nome.localeCompare(b.nome,'it');
-    if(a.score===null)return 1;if(b.score===null)return -1;return b.score-a.score;});
-  else if(state.catSort==='trend')keys.sort((a,b)=>{
-    if(a.trend===null)return 1;if(b.trend===null)return -1;return b.trend-a.trend;});
-  else keys.sort((a,b)=>a.nome.localeCompare(b.nome,'it'));
+  /* Un secondo tocco sullo stesso bottone inverte l'ordine (catInv). Le categorie senza
+     valore restano SEMPRE in fondo, in entrambi i versi: sono assenza di dato, non "i peggiori". */
+  const inv=state.catInv,sg=inv?-1:1;
+  const perNum=k=>(a,b)=>{
+    if(a[k]===b[k])return a.nome.localeCompare(b.nome,'it');
+    if(a[k]===null)return 1;if(b[k]===null)return -1;return sg*(b[k]-a[k]);};
+  if(state.catSort==='score')keys.sort(perNum('score'));
+  else if(state.catSort==='trend')keys.sort(perNum('trend'));
+  else keys.sort((a,b)=>sg*a.nome.localeCompare(b.nome,'it'));
 
-  let h='<div class="sortrow">'+
-    '<div class="sc'+(state.catSort==='score'?' on':'')+'" onclick="setSort(\'score\')">Score ▼</div>'+
-    '<div class="sc'+(state.catSort==='trend'?' on':'')+'" onclick="setSort(\'trend\')">Trend 6m ▼</div>'+
-    '<div class="sc'+(state.catSort==='az'?' on':'')+'" onclick="setSort(\'az\')">A-Z</div></div>';
-  h+='<div class="sec">'+keys.length+' categorie · score di allocazione</div>';
+  const freccia=k=>state.catSort===k&&inv?' ▲':' ▼';
+  const bt=(k,lbl)=>'<div class="sc'+(state.catSort===k?' on':'')+'" role="button" tabindex="0" '+
+    'title="Tocca di nuovo per invertire l\'ordine" onclick="setSort(\''+k+'\')">'+lbl+'</div>';
+  let h='<div class="sortrow">'+bt('score','Score'+freccia('score'))+bt('trend','Trend 6m'+freccia('trend'))+
+    bt('az',state.catSort==='az'&&inv?'Z-A':'A-Z')+'</div>';
+  h+='<div class="sec">'+keys.length+' categorie · score di allocazione'+
+    (inv&&state.catSort!=='az'?' · dal più basso':'')+'</div>';
 
   keys.forEach(c=>{const st=stato(c);
     const membri=F.filter(f=>f[I.cat]===c.nome&&(!state.tipo||tipoOf(f)===state.tipo))
@@ -269,7 +274,7 @@ function tdRow(f,rank,r){return '<div class="mini" onclick="event.stopPropagatio
   '<div style="flex:0 0 auto;font-size:12px;white-space:nowrap"><b class="'+clsTD(r[1])+'">'+fmtTD(r[1])+'</b> '+
   '<span style="color:var(--mut);font-size:10.5px">±'+r[2].toFixed(2)+' · '+num(f[I.ter],2)+'%</span></div></div>';}
 function kvBox(k,v){return '<div class="kv"><div class="k">'+k+'</div><div class="v sm">'+v+'</div></div>';}
-function setSort(s){state.catSort=s;render();}
+function setSort(s){if(state.catSort===s)state.catInv=!state.catInv;else{state.catSort=s;state.catInv=false;}render();}
 function miniRow(f){return '<div class="mini" onclick="event.stopPropagation();detail(\''+f[I.isin]+'\')">'+
   '<div class="mn">'+esc(f[I.name])+'</div>'+
   '<div style="flex:0 0 auto;font-size:12px;color:var(--mut)">'+num(f[I.ter],2)+'% · '+eur(f[I.aum])+'</div></div>';}
@@ -681,7 +686,11 @@ function openInfo(){
       'strumenti dentro ogni categoria; <b>non cambia</b> le metriche di Categorie, Mappa e Idee, che '+
       'restano calcolate su tutta la categoria.<br>'+
       '<b>Periodo</b> (1 settimana … 5 anni): ordina Classifica e Top / Flop. Categorie, Mappa e Idee '+
-      'lavorano sempre sul trend a 6 mesi, quindi lì i chip del periodo non compaiono.</div>'+
+      'lavorano sempre sul trend a 6 mesi, quindi lì i chip del periodo non compaiono.<br>'+
+      '<b>Ordine in Categorie</b> (Score, Trend 6m, A-Z): un secondo tocco sullo stesso bottone '+
+      'inverte l\'ordine, e la freccia passa da ▼ (dal più alto) a ▲ (dal più basso). Con Score ▲ '+
+      'in cima trovi le categorie più deboli della loro macro. Quelle senza score restano sempre '+
+      'in fondo: è un dato che manca, non un voto basso.</div>'+
     '<div class="ihead">Cosa non c\'è, e perché</div>'+
     '<div class="ip"><b>Momentum relativo alla categoria</b>: misura la bravura del gestore, che su un '+
       'ETF non esiste. Su strumenti che replicano lo stesso indice ordinerebbe per TER credendo di '+
