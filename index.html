@@ -150,9 +150,10 @@ header.fopen{position:relative}
 .mbar.mp{background:var(--pos)}.mbar.mn{background:var(--neg)}
 /* Barra di My Way: ← My Way · Portafogli · Fondi · ETF (Magüt), 28/09/2026 */
 .suite{max-width:760px;margin:0 auto 8px;display:flex;gap:6px;flex-wrap:wrap}
-.suite a,.suite span{font-size:12px;font-weight:600;color:var(--mut);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;line-height:1.4}
+.suite a,.suite span,.suite button{font-size:12px;font-weight:600;color:var(--mut);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;line-height:1.4;background:none;font-family:inherit;cursor:pointer}
 .suite span{color:#04101f;background:var(--accent);border-color:var(--accent)}
-.suite a:hover{color:var(--txt)}
+.suite a:hover,.suite button:hover{color:var(--txt)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;max-width:min(92vw,460px);z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 .suite a.home{color:var(--accent);border-color:transparent;padding-left:2px}
 /* Scheda categoria v2 (01/10/2026): sezioni 1/2, gruppi-indice, barre divergenti */
 .chev{flex:0 0 auto;color:var(--mut);font-size:18px;line-height:1}
@@ -214,7 +215,8 @@ body{padding-left:var(--side)}
 header{display:contents}
 .hrow{order:1;max-width:none;margin:0;padding:0 4px}.hmeta{order:2;max-width:none;margin:-8px 0 0;padding:0 4px}
 nav{order:3}.controls{order:4}.suite{order:5;margin:auto 0 0;padding:0 4px;max-width:none}
-.suite{gap:4px;flex-wrap:nowrap}.suite a,.suite span{font-size:11.5px;padding:2px 8px}
+.suite{gap:4px}.suite a,.suite span,.suite button{font-size:11.5px;padding:2px 8px}
+.toast{bottom:24px}
 h1{font-size:17px}
 .filtbtn{display:none}
 .controls{display:flex;flex-direction:column;background:#111b2d;border:1px solid var(--line);border-radius:12px;padding:10px;margin:0;max-width:none}
@@ -257,7 +259,7 @@ body>a[href*="oicr-monitor"]{display:none}
 <body>
 <div class="side">
 <header>
-  <div class="suite" role="navigation" aria-label="My Way"><a href="https://myway-corrado.vercel.app" class="home">← My Way</a><a href="https://magut.vercel.app">Portafogli</a><a href="https://oicr-monitor.vercel.app">Fondi</a><span aria-current="page">ETF</span></div>
+  <div class="suite" role="navigation" aria-label="Suite My Way"><a href="https://myway-corrado.vercel.app">My Way</a><a href="https://magut.vercel.app">Portafogli</a><a href="https://oicr-monitor.vercel.app">Fondi</a><span aria-current="page">ETF</span><button type="button" id="clienti">Clienti</button></div>
   <div class="hrow"><h1><b>ETF-ETC-ETN</b> Monitor</h1><button id="infoBtn" class="infob" aria-label="Info">i</button></div>
   <div class="hmeta"><div class="sub" id="cnt"></div><div class="asof" id="asof"></div></div>
   <button type="button" class="filtbtn" id="filtBtn" aria-expanded="false" aria-controls="controls"><span class="fk">Filtri</span><span class="fs" id="filtSum"></span><span class="fm" id="filtMod">Modifica</span></button>
@@ -312,7 +314,7 @@ body>a[href*="oicr-monitor"]{display:none}
       }
     };}
   }
-  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=18';
+  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=19';
     s.onload=function(){try{head(d)}catch(e){}};document.body.appendChild(s);}
   function withFilter(d){
     return Promise.resolve(d)
@@ -324,6 +326,22 @@ body>a[href*="oicr-monitor"]{display:none}
 })();
 </script>
 <a href="https://oicr-monitor.vercel.app" style="position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));right:14px;z-index:50;background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:20px;font-size:12px;text-decoration:none;border:1px solid #334155">⇄ Fondi</a>
+<script>
+/* Voce "Clienti" della barra della suite: apre il CRM (Portfolio Workbench) sul Mac con il collegamento
+   portfolioworkbench://apri, come in My Way (clienti.js). Nessun dato passa di qui. */
+(function(){var b=document.getElementById('clienti');if(!b)return;
+  var avviso=function(t){var d=document.createElement('div');d.className='toast';d.setAttribute('role','status');d.textContent=t;
+    document.body.appendChild(d);setTimeout(function(){d.remove()},7000);};
+  b.addEventListener('click',function(){
+    var mac=/Mac/.test(navigator.platform||navigator.userAgent)&&!/iPhone|iPad/.test(navigator.userAgent)&&navigator.maxTouchPoints<2;
+    if(!mac){avviso('Clienti è il CRM e si apre solo sul Mac. I dati dei clienti non escono dal Mac.');return;}
+    var aperto=false,via=function(){aperto=true;};
+    window.addEventListener('blur',via,{once:true});document.addEventListener('visibilitychange',via,{once:true});
+    location.href='portfolioworkbench://apri';avviso('Apro il CRM sul Mac… ci vuole qualche secondo.');
+    setTimeout(function(){window.removeEventListener('blur',via);document.removeEventListener('visibilitychange',via);
+      if(!aperto&&document.hasFocus())avviso('Il CRM non ha risposto. Se non si apre, aprilo dal Dock o dalla Scrivania.');},8000);});
+})();
+</script>
 <script>if('serviceWorker' in navigator)addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){})});</script>
 </body>
 </html>
