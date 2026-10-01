@@ -122,6 +122,57 @@ nav button.on{color:var(--accent)}
 .suite span{color:#04101f;background:var(--accent);border-color:var(--accent)}
 .suite a:hover{color:var(--txt)}
 .suite a.home{color:var(--accent);border-color:transparent;padding-left:2px}
+/* Scheda categoria v2 (01/10/2026): sezioni 1/2, gruppi-indice, barre divergenti */
+.chev{flex:0 0 auto;color:var(--mut);font-size:18px;line-height:1}
+.ctag{display:inline-block;margin-top:5px;font-size:10px;font-weight:700;color:var(--accent);background:rgba(79,156,255,.13);border-radius:5px;padding:2px 6px}
+.qe{background:rgba(79,156,255,.14);color:var(--accent)}
+.card:has(.irow){flex-wrap:wrap;row-gap:0}
+.irow{flex:0 0 100%;display:flex;align-items:center;gap:8px;border-top:1px solid rgba(255,255,255,.06);margin-top:7px;padding-top:7px;min-width:0}
+.irow .qbadge{flex:0 0 auto}.irow .ie{flex:1;min-width:0;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.irow .id{flex:0 0 auto;font-size:11.5px;color:var(--mut)}
+.back{display:block;background:none;border:none;color:var(--accent);font-size:12.5px;font-weight:700;padding:0 0 8px;cursor:pointer;font-family:inherit;text-align:left;max-width:calc(100% - 44px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ip.mut{color:var(--mut)}
+.secn{display:flex;align-items:center;gap:8px;margin:16px 0 8px}
+.secn .b{font-size:11px;font-weight:800;color:#04101f;background:var(--mut);border-radius:5px;padding:2px 7px}
+.secn .b.a2{background:var(--accent)}
+.secn .t{font-size:12.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.secn .s{font-size:11px;color:var(--mut)}
+.alloc{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.alloc .atop{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.alloc .big{font-size:26px;font-weight:800}.alloc .of{font-size:13px;color:var(--mut)}
+.spill{font-size:12px;font-weight:700;color:var(--txt);background:var(--chip);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.abar{height:6px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:8px}.abar>i{display:block;height:100%}
+.alloc .m4{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.alloc .m4 .k{font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.4px}
+.alloc .m4 .v{font-size:14px;font-weight:800}
+.gcard{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.ghead{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gname{font-size:14.5px;font-weight:800}.gn{margin-left:auto;font-size:11px;color:var(--mut)}
+.gbest{font-size:12.5px;line-height:1.45;margin:6px 0 4px}
+.gex{font-size:11px;color:var(--mut);margin-top:2px}
+.more{display:block;background:none;border:none;color:var(--accent);font-size:12.5px;font-weight:700;padding:8px 0 2px;cursor:pointer;font-family:inherit}
+.tdr{display:grid;grid-template-columns:20px minmax(0,1fr) 64px 46px;align-items:center;gap:8px;padding:8px 0 4px;border-top:1px solid rgba(255,255,255,.05);cursor:pointer}
+.tdr.tdh{cursor:default;font-size:10px;color:var(--mut);text-transform:uppercase;letter-spacing:.4px;padding:4px 0 3px;border-top:none;border-bottom:1px solid var(--line)}
+.tdr.tdh span:nth-child(n+3){text-align:right}
+.tdr .r{font-size:12px;font-weight:800;color:var(--mut)}
+.tdr .nmw{display:flex;flex-direction:column;gap:5px;min-width:0}
+.tdr .tn{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dbar{position:relative;height:6px;background:rgba(255,255,255,.04);border-radius:3px}
+.dbar::before{content:"";position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:#3a4a69}
+.dbar i{position:absolute;top:0;height:6px;border-radius:3px}
+.dbar i.p{left:50%;background:var(--pos)}.dbar i.n{right:50%;background:var(--neg)}
+.tdr .tv{text-align:right;font-size:13px;font-weight:800}
+.tdr .tv small{display:block;font-size:9.5px;font-weight:600;color:var(--mut)}
+.tdr .ter{text-align:right;font-size:11.5px;color:var(--mut)}
+details.altri{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:0 12px;margin-bottom:6px}
+details.altri summary{list-style:none;display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer}
+details.altri summary::-webkit-details-marker{display:none}
+details.altri .st{flex:1}details.altri .st b{display:block;font-size:13.5px}
+details.altri .st small{display:block;font-size:11.5px;color:var(--mut);margin-top:2px;line-height:1.4}
+details.altri[open] .chev{transform:rotate(180deg)}
+details.altri[open]{padding-bottom:8px}
+.gbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px}
+.gbox .gl{font-size:11.5px;color:var(--mut);line-height:1.55}.gbox .gl a{color:inherit}
 /* Layout PC (01/10/2026): solo schermi larghi con mouse. Telefoni e tablet touch restano identici. */
 @media (min-width:1024px) and (hover:hover) and (pointer:fine){
 :root{--side:188px;--maxw:1240px}
@@ -149,6 +200,12 @@ nav button.on{background:var(--chip);color:var(--accent)}
 .sheet{max-width:880px;border-radius:16px;border:1px solid var(--line);max-height:86vh;padding:20px 22px}
 .chartbox svg{height:160px}
 body>a[href*="oicr-monitor"]{display:none}
+.sheet.wide{max-width:980px}
+.ggrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;align-items:start}
+.ggrid>.gcard:only-child{grid-column:1/-1}
+.alloc{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:center}
+.alloc .m4{grid-template-columns:repeat(4,1fr);margin-top:0}
+.tdr:not(.tdh):hover,details.altri summary:hover{background:rgba(255,255,255,.03)}
 }
 </style>
 </head>
@@ -202,7 +259,7 @@ body>a[href*="oicr-monitor"]{display:none}
       }
     };}
   }
-  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=16';
+  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=17';
     s.onload=function(){try{head(d)}catch(e){}};document.body.appendChild(s);}
   function withFilter(d){
     return Promise.resolve(d)
