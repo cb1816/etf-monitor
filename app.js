@@ -627,7 +627,9 @@ function openInfo(){
       'gemelli negli ultimi 3 anni. Contiene il TER e tutto quello che il TER non dice (ritenute sui '+
       'dividendi, prestito titoli, replica fisica o swap). Un gruppo si mostra solo se supera un controllo: '+
       'almeno 3 ETF con dati puliti e TD vicine fra loro (sotto 1.5 punti l\'anno sugli azionari, 0.5 sugli '+
-      'obbligazionari). ESG, leva, fattori e fondi attivi non si raggruppano: restano per costo.</div>'+
+      'obbligazionari). ESG, leva, fattori e fondi attivi non si raggruppano: restano per costo. '+
+      'Il <b>±</b> accanto alla TD è il margine d\'errore della stima: se due ETF differiscono meno di '+
+      'così, sono di fatto pari. Il numero davanti al nome è la posizione nel gruppo.</div>'+
     '<div class="ihead">Le metriche di categoria</div>'+
     '<div class="ip"><b>Trend 6m</b>: mediana dei rendimenti a 6 mesi. Assoluto, non relativo.<br>'+
       '<b>Mom. 12-1</b>: (1+r12)/(1+m1) − 1 sulla mediana. Il classico accademico, esclude l\'ultimo '+
@@ -646,6 +648,40 @@ function openInfo(){
       'rallenta) · ↗️ <b>possibile svolta</b> (trend &lt;0 ma accelera) · 🔻 <b>peggioramento</b>.<br>'+
       'Classificati per <b>segno</b>, senza soglie inventate: accanto trovi sempre il valore.</div>'+
     '</div>'+
+    '<div class="ihead">Le metriche di strumento</div>'+
+    '<div class="ip"><b>TER e quartile</b>: il costo annuo dichiarato. <b>Q1</b> = fra il 25% più '+
+      'economico della sua categoria, <b>Q4</b> = fra il 25% più caro. Accanto c\'è sempre il valore, '+
+      'perché il quartile da solo nasconde la differenza fra 0.07% e 0.20%. Calcolato dove la categoria '+
+      'ha almeno 4 TER.<br>'+
+      '<b>Patrimonio</b>: sotto i 50 milioni compare il badge <b>piccolo</b>. Un ETF piccolo rischia di '+
+      'essere chiuso o fuso, e per chi lo possiede significa una vendita forzata, con le tasse, nel '+
+      'momento scelto da altri.<br>'+
+      '<b>Dal</b>: l\'anno di avvio. Un ETF giovane ha poca storia: mancano i rendimenti a 3 e 5 anni e '+
+      'la tracking difference, che ne richiede 3.<br>'+
+      '<b>Linee/valute</b>: quante quotazioni dello stesso prodotto sono nell\'elenco (accumulazione e '+
+      'distribuzione, valute diverse). Non cambia il giudizio: aiuta a riconoscere i doppioni.<br>'+
+      '<b>Prezzo vecchio</b>: l\'ultima chiusura è più vecchia della data di riferimento. Su strumenti '+
+      'poco scambiati il prezzo può restare fermo per giorni, e i rendimenti recenti ne risentono.</div>'+
+    '<div class="ip"><b>Volatilità 3a</b>: quanto oscillano i rendimenti mensili, riportata all\'anno. '+
+      'Più è alta, più il percorso è accidentato.<br>'+
+      '<b>Max drawdown 3a</b>: la perdita peggiore dal massimo al minimo successivo negli ultimi 3 anni, '+
+      'cioè quanto avrebbe perso chi fosse entrato nel momento peggiore.<br>'+
+      '<b>Rend./volat. 3a</b>: rendimento diviso volatilità sui 3 anni, quanto si è guadagnato per unità '+
+      'di oscillazione. <b>Non è un indice di Sharpe</b>: manca il tasso privo di rischio, quindi va '+
+      'usato solo per confrontare strumenti fra loro.<br>'+
+      '<b>Grafico</b>: la serie mensile reale di Morningstar quando c\'è'+(SFIN?' (si ferma al '+esc(SFIN)+')':'')+
+      '. Quando manca, una <b>stima</b> ricostruita da pochi punti (1 settimana, 1, 3 e 6 mesi, 1, 3 e '+
+      '5 anni) uniti da segmenti: dà la direzione, non il percorso. La legenda dice quale delle due vedi.</div>'+
+    '<div class="ihead">I filtri</div>'+
+    '<div class="ip"><b>Macro</b>: 11 gruppi di categorie Morningstar (azionari, obbligazionari, materie '+
+      'prime, leva e inversi, cripto…). La separazione è per <b>categoria</b>, non per struttura '+
+      'giuridica: lo screener non dice se uno strumento è un ETF, un ETC o un ETN.<br>'+
+      '<b>Tipo</b> (ETF / ETC / ETN-ETP): per lo stesso motivo è <b>ricavato dal nome e dalla '+
+      'categoria</b>, non letto da un campo ufficiale. Filtra Classifica, Top / Flop e l\'elenco degli '+
+      'strumenti dentro ogni categoria; <b>non cambia</b> le metriche di Categorie, Mappa e Idee, che '+
+      'restano calcolate su tutta la categoria.<br>'+
+      '<b>Periodo</b> (1 settimana … 5 anni): ordina Classifica e Top / Flop. Categorie, Mappa e Idee '+
+      'lavorano sempre sul trend a 6 mesi, quindi lì i chip del periodo non compaiono.</div>'+
     '<div class="ihead">Cosa non c\'è, e perché</div>'+
     '<div class="ip"><b>Momentum relativo alla categoria</b>: misura la bravura del gestore, che su un '+
       'ETF non esiste. Su strumenti che replicano lo stesso indice ordinerebbe per TER credendo di '+
