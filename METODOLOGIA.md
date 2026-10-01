@@ -4,8 +4,8 @@ App per ETF/ETC/ETP quotati su Borsa Italiana. Gemella di **OICR Monitor**, ma c
 **impianto analitico diverso**: gli OICR si giudicano sulla bravura del gestore dentro la
 categoria, gli ETF si giudicano sulla categoria stessa e poi sull'efficienza dello strumento.
 
-> **Stato**: aggiornato il **25/08/2026**, dopo le coppie e spread (§8) e la dichiarazione
-> della fine delle serie storiche (§12).
+> **Stato**: aggiornato il **01/10/2026**, dopo il gruppo-indice e l'efficienza di replica
+> (§7), il layout per PC e la guida completata (ogni criterio mostrato ha la sua spiegazione, §2).
 > Questo file è la fonte di verità e vive **nel repo**: la copia nel progetto Claude ne è un
 > riflesso, non il contrario. Dove una cosa non è stata fatta, è detto esplicitamente.
 
@@ -22,7 +22,9 @@ categoria, gli ETF si giudicano sulla categoria stessa e poi sull'efficienza del
   (Attenzione: `etf-monitor.vercel.app`, senza suffisso, è di un altro utente: non usarlo.)
 - Deploy: automatico a ogni commit su `main`, progetto `etf-monitor` nel team `cb1816s-projects`
 - File: `index.html` (loader), `app.js` (interfaccia), `api/data.js` (dati e metriche),
-  `data/series.json` (storici), `data/snapshot.json` (fallback statico)
+  `api/_gruppi.js` (gruppo-indice e tracking difference, §7; il "_" lo tiene fuori dagli
+  endpoint), `data/series.json` (storici), `data/snapshot.json` (fallback statico),
+  `test/motore.test.js` e `test/gruppi.test.js` (`node test/<file>`, nessuna dipendenza)
 - Documenti: questo file (impianto analitico) e **`OPERATIVO.md`** (testata, PWA, canali di
   scrittura verso il repo e verifiche dopo il commit)
 - Gemella fondi: repo `oicr-monitor`, sito `https://oicr-monitor.vercel.app`. Le due app si
@@ -38,13 +40,16 @@ CORS, niente robots.txt, niente browser. La cache edge è di 6 ore. Da questo di
 
 **Regola operativa**: dopo ogni modifica ad `app.js`, alzare il cache-bust in `index.html`
 (`app.js?v=N` → `v=N+1`), o il telefono continua a servire la versione vecchia dalla cache.
-Al 25/08/2026 siamo a `v=12`.
+Al 01/10/2026 siamo a `v=15`.
 
 Le modifiche ai file si fanno **nell'editor web di GitHub dal Chrome dell'utente**, mai con
 download e upload manuali (i browser rinominano i duplicati e su GitHub finiscono file nuovi
 invece di sovrascrivere). L'editor è CodeMirror: `document.querySelector('.cm-content').cmTile.view`,
-contenuto sostituibile con `view.dispatch({changes:{from:0,to:len,insert}})`. **Verificare sempre
-il checksum del contenuto incollato prima di committare**, e chiedere conferma prima di ogni commit.
+contenuto modificabile con `view.dispatch({changes:[{from,to,insert},…]})`: si applicano solo i
+blocchi cambiati, con posizioni in **unità UTF-16** (`app.js` e `index.html` contengono emoji).
+**Verificare sempre il checksum del contenuto prima di committare**, e chiedere conferma prima di
+ogni commit. **Niente riga `Co-Authored-By` nei messaggi**: il 01/10/2026 un commit con quel
+coautore non ha fatto partire il deploy su Vercel, tutti gli altri sì.
 
 ---
 
@@ -62,11 +67,17 @@ ordinare per TER travestito da bravura.
 |---|---|---|
 | Risponde a | *Dove* mi posiziono | *Quale* strumento compro |
 | Unità di analisi | la **categoria** | lo **strumento** |
-| Ingredienti | trend, Mom. 12-1, accelerazione, ampiezza, dispersione | TER, patrimonio, anzianità |
+| Ingredienti | trend, Mom. 12-1, accelerazione, ampiezza, dispersione | efficienza di replica (TD, dove l'indice è riconoscibile), TER, patrimonio, anzianità |
 | Cambia | ogni mese | quasi mai |
-| Dove nell'app | Categorie, Mappa, Idee | Classifica, schede |
+| Dove nell'app | Categorie, Mappa, Idee | Classifica, scheda categoria, scheda strumento |
 
 Non si mescolano mai in un unico numero.
+
+**Ogni criterio che l'app mostra ha la sua spiegazione nella guida "i"** (o in una nota accanto,
+o nel pannello dedicato come per le coppie). Verificato voce per voce il 01/10/2026: metriche di
+categoria e stati, efficienza di replica col suo ±, TER e quartile, patrimonio e badge "piccolo",
+anno di avvio, linee/valute, prezzo vecchio, volatilità, max drawdown, rend./volat., grafico reale
+o stimato, macro, filtro tipo, periodo. Chi aggiunge un criterio aggiunge anche la spiegazione.
 
 ---
 
@@ -184,7 +195,8 @@ Nessuna soglia inventata. Se servirà una banda morta, va tarata sui dati.
 2. **Patrimonio** — `FundTNAV`. Sotto 50 M€ la scheda segnala il rischio di chiusura o fusione,
    che per il cliente significa realizzo forzato.
 3. **Anzianità** — anno da `InceptionDate`.
-4. **Efficienza di replica** — *non implementata*: dipende dal gruppo-indice (§7).
+4. **Efficienza di replica** — **in produzione dal 01/10/2026** (§7): tracking difference dentro
+   il gruppo-indice. Dove c'è, ordina gli strumenti prima del TER.
 5. **Metodo di replica** — *impossibile*: il campo non esiste (§4).
 6. **Liquidità e spread denaro-lettera** — *non disponibili*. È il costo che il cliente paga
    davvero all'ingresso e all'uscita, e su uno strumento sottile vale più di anni di TER.
@@ -230,15 +242,61 @@ sparire dalle classifiche: è il punto da controllare per primo se qualcuno segn
 **Non è il filtro "tipo"** (§11). Quello è il wrapper (ETF/ETC/ETN-ETP) e resta ortogonale: fra i
 355 ETN-ETP la maggior parte sono proprio i leva, quindi a chip spento quel conteggio scende a 65.
 
-## 7. Raggruppamento — non implementato
+## 7. Gruppo-indice ed efficienza di replica — in produzione dal 01/10/2026
 
-Il **gruppo-indice** (tutti gli ETF sullo stesso indice, chiave = categoria + indice normalizzato
-+ hedged) resta la strada giusta per uno score di selezione relativo, ma richiede di estrarre
-l'indice dal nome per euristica e tararla col controllo di sanità (dentro un gruppo, la dispersione
-dei rendimenti a 3 anni sotto ~1,5 punti l'anno). Oggi il raggruppamento è per categoria Morningstar.
+Le categorie Morningstar mescolano indici diversi ("Azionari USA Large Cap Blend" contiene S&P 500,
+MSCI USA, Equal Weight, ESG, Min Vol, attivi…): ordinare per TER dentro la categoria confronta
+indici diversi. Il **gruppo-indice** mette insieme solo gli ETF sullo stesso indice, e lì si misura
+quanto ciascuno lo replica bene. Codice: `api/_gruppi.js`; riferimento Python e risultati nel
+progetto Claude (`ETF_Monitor_gruppo_indice_prototipo.py`, `…_risultati.md`); i casi difficili in
+`test/gruppi.test.js`. Le tre cose devono restare allineate.
 
-Errore da non commettere quando si farà: indici *simili ma non uguali* (MSCI World vs MSCI World
-ex-USA, S&P 500 vs S&P 500 Equal Weight, IMI vs standard) non vanno fusi.
+**Chiave** = famiglia d'indice + varianti + hedged, estratta dal **nome**, perché lo screener non
+espone l'indice. **Nel dubbio non si raggruppa.**
+- Azionari: ~45 famiglie (S&P 500, Nasdaq 100, Euro Stoxx 50, Stoxx 600, DAX, FTSE MIB, MSCI
+  World/USA/EM/Europe/EMU/Japan/paesi, FTSE All-World…).
+- Metalli: solo **fisico** (oro, argento, platino, palladio); futures a parte.
+- Obbligazionari: **segmento + scadenza** ("Govt EUR 3-5"). Il fornitore dell'indice quasi mai è nel
+  nome, quindi un gruppo può mescolare Bloomberg, iBoxx, FTSE: soglia più stretta.
+- **Mai raggruppati**: ESG di ogni tipo (indici diversi fra loro), leva e short, categorie
+  "Trading", e nelle categorie "… Altro" gli ETF senza "hedged" nel nome (lì finiscono classi
+  coperte non dichiarate).
+- Varianti che fanno un gruppo a sé: ex-USA/UK/EMU/Japan/China/Fin, Equal Weight, Min Vol, Min TE,
+  Quality, Momentum, Value, Dividendi, Small/Mid, Growth, Capped, All Shares, attivi/enhanced, IMI,
+  11 settori, rating/ibridi/BBB, durata breve/lunga, ultrashort, fallen angels, scadenza fissa.
+  **Indici simili ma diversi non si fondono** (World vs World ex-USA, S&P 500 vs Equal Weight).
+
+**TD relativa** = pendenza (regressione su 36 mesi) del log-scarto cumulato fra l'ETF e la
+**mediana mensile del gruppo**, annualizzata, con errore standard (±). È lo scarto dai gemelli, non
+dall'indice: per ordinare dentro il gruppo è equivalente, perché l'indice è comune e si cancella.
+Contiene il TER e quello che il TER non dice (ritenute sui dividendi, prestito titoli, swap).
+
+**Perché una pendenza e niente tracking error**: diverse linee "USD … EUR" hanno nelle serie
+Morningstar scarti alterni di ±1–2% mese su mese (sfasamenti di data o di cambio). Il tracking
+error mensile misurerebbe quel rumore, e una TD da inizio a fine finestra lo erediterebbe agli
+estremi (±0,5 punti l'anno). La pendenza lo assorbe: ±0,01 sui fondi puliti, ±0,1 sui rumorosi.
+Rumore (dev. std. dei residui) sopra 0,75% → "dati instabili", escluso dal confronto.
+
+**Controllo di sanità** per gruppo: almeno 3 ETF puliti con 36 mesi e dispersione delle TD sotto
+**1,5 punti l'anno (azionari), 1,0 (metalli), 0,5 (obbligazionari)**. Stati `ok` / `fallito` /
+`pochi`; l'app mostra **solo** i gruppi `ok`. La soglia da sola non basta: ogni famiglia nuova va
+riletta a mano membro per membro (due intrusi passavano il controllo nell'MSCI World).
+
+**Risultati al 01/10/2026** (dati live, 2.542 strumenti): **36 gruppi validi, 210 ETF con TD**.
+Correlazione TER–TD −0,83 sull'MSCI World (conta quasi solo il costo), −0,21 sull'S&P 500 (swap e
+ritenute spostano l'ordine: WisdomTree S&P 500 TER 0,05 → TD −0,28). Bocciati correttamente:
+Corporate USD, EM Bond USD (JPM EMBI e Bloomberg insieme), fattori misti.
+
+**Errori trovati e corretti**: abbreviazioni compresse dei nomi ("Scr", "MinTE", "Cthlc", "Md-Cp Eq
+Wgt", "Advcd", "GrnBdWtd", "Indstr", "Lng Dtd", "1M-1Y", "€ Acc H", "hEUR", e il 01/10 sui dati
+live "Hg Rt MW"). L'universo cambia: un ETF rinominato può portare un'abbreviazione nuova, il
+controllo boccia il gruppo e il gruppo sparisce dall'app finché non si aggiunge la regola.
+
+**Nell'app**: scheda categoria (riquadri "Indice … · gruppo verificato" ordinati per TD, numero =
+posizione nel gruppo, poi "meno di 3 anni" e "dati instabili"; gli altri strumenti per TER) e
+scheda strumento (TD ±, posizione, frase, i tre più efficienti). Niente TD in Classifica:
+mescolerebbe allocazione e selezione. Le serie sono statiche al 30/06/2026: la TD invecchia con
+loro.
 
 ---
 
@@ -342,6 +400,11 @@ score, sd, mdd, terMed`.
 Più `catNames`, `macroOrder`, `series`, `meta{date, dataChiusura, source, nTot, nData, nSeries,
 nCat, nCatSottoSoglia, nNoTer, nStale, minN, schema}`.
 
+`DATA.repl` (dal 01/10/2026, §7), **separato da `funds`** per non toccare gli indici posizionali:
+`{g: [{k, cl, n, st, disp}], f: {isin: [indiceGruppo, td, se, qualità]}, finestra, soglie}`.
+`qualità`: 0 pulito, 1 dati instabili, 2 meno di 3 anni (td e se `null`). Calcolato anche nel
+ripiego sullo snapshot. ~46 KB, ~70 ms.
+
 ### Macro (11)
 `Azionari, Obbligazionari, Convertibili, Monetari, Bilanciati, Materie Prime (ETC), Immobiliare,
 Alternativi, Leva e Inverse (ETP), Cripto, Altro`
@@ -441,16 +504,18 @@ l'ufficio fiscale prima di finire in un testo mostrato al cliente.
 
 ## 15. Prossimi passi, in ordine di resa
 
-1. **Gruppo-indice ed efficienza di replica** (§7, §6.4) — rende la scheda categoria una vera
-   classifica di selezione invece di un elenco ordinato per costo.
-2. **Δ rango** — serve un archivio di rilevazioni settimanali (`data/snapshots.json` nel repo,
+1. **Rigenerare `data/series.json`** (fermo al 30/06/2026): ringiovanisce TD, coppie e grafici.
+   Da `git` in un container, poi aggiornare `SERIE_FINE` in `api/data.js` (§12).
+2. **Gruppo-indice: copertura** (§7) — oggi ~8% dell'universo ha la TD. Famiglie nuove con
+   revisione a mano; ogni regola in tre posti (JS, Python, test).
+3. **Δ rango** — serve un archivio di rilevazioni settimanali (`data/snapshots.json` nel repo,
    `data -> {categoria: score}`, ~4 KB a settimana). Su Vercel non c'è persistenza fra richieste,
    quindi va scritto nel repo da un job. È l'unica cosa per cui varrebbe la pena rimettere un
    task settimanale.
-3. **Drawdown a 5 anni e correlazioni** dalle serie già in repo (§9, §12).
-4. **Ponte OICR ↔ ETF** — per ogni categoria, l'ETF di riferimento: "questo gestore attivo vale il
+4. **Drawdown a 5 anni e correlazioni** dalle serie già in repo (§9, §12).
+5. **Ponte OICR ↔ ETF** — per ogni categoria, l'ETF di riferimento: "questo gestore attivo vale il
    suo costo?" diventa una sottrazione visibile. È l'uso più forte di avere le due app nello
    stesso impianto.
-5. **Liquidità da Borsa Italiana** come secondo canale mensile (§6.6).
-6. **Pesi del composito** (§5) e eventuale banda morta sugli stati, se dopo qualche settimana i
+6. **Liquidità da Borsa Italiana** come secondo canale mensile (§6.6).
+7. **Pesi del composito** (§5) e eventuale banda morta sugli stati, se dopo qualche settimana i
    dati suggeriscono che servono.
