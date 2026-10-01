@@ -152,7 +152,7 @@ const VAR = [
   ['Sett. Comunicazioni', /telecom|telecm|comm(unication)?\s*serv|comms|media/],
   ['Sett. Immobiliare', /real\s*estate|reit/],
   ['Sett. Altri', /auto(mobile)?s?\b|food|oil\s*&?\s*gas|retail|travel|pers\s*&|hhold|household/],
-  ['Rating', /aaa|aa\b|highest\s*r|lowest\s*r|hghst|lwst|hr\b|macro\s*w|mcwtd|sov\s*div|sovcap|large\s*cap|lg\s*cp|covered|pfandbr/],
+  ['Rating', /aaa|aa\b|highest\s*r|lowest\s*r|hghst|lwst|hr\b|hg\s*rt|\bmw\b|macro\s*w|mcwtd|sov\s*div|sovcap|large\s*cap|lg\s*cp|covered|pfandbr/],
   ['Lunga durata', /lng\s*dtd|long\s*dated|long\s*dur|\blong\b|lg\s*dur/],
   ['Ultrashort', /ultra\s*short|ultrashort/],
   ['Fallen angels/Opps', /faln|fallen|opps|opportunit/],
