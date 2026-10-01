@@ -122,6 +122,34 @@ nav button.on{color:var(--accent)}
 .suite span{color:#04101f;background:var(--accent);border-color:var(--accent)}
 .suite a:hover{color:var(--txt)}
 .suite a.home{color:var(--accent);border-color:transparent;padding-left:2px}
+/* Layout PC (01/10/2026): solo schermi larghi con mouse. Telefoni e tablet touch restano identici. */
+@media (min-width:1024px) and (hover:hover) and (pointer:fine){
+:root{--side:188px;--maxw:1240px}
+body{padding-left:var(--side)}
+header{position:static;padding:14px 24px 10px}
+.suite,.hrow,.hmeta,.controls{max-width:var(--maxw)}
+.wrap{max-width:var(--maxw);padding:4px 24px 48px}
+h1{font-size:20px}
+.controls{display:grid;grid-template-columns:1fr 1fr;column-gap:8px}
+.controls>.chips{grid-column:1/-1;flex-wrap:wrap;overflow:visible}
+.chip:hover:not(.on){color:var(--txt);border-color:var(--mut)}
+nav{top:0;bottom:0;right:auto;width:var(--side);flex-direction:column;justify-content:flex-start;gap:4px;padding:18px 10px;border-top:none;border-right:1px solid var(--line)}
+nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 12px;font-size:13.5px;border-radius:10px}
+nav button:hover{background:var(--panel);color:var(--txt)}
+nav button.on{background:var(--chip);color:var(--accent)}
+#view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px;align-items:start}
+#view>*{min-width:0}
+#view>.catcard.open{grid-column:1/-1}
+.catcard.open .grid.g2{grid-template-columns:repeat(4,1fr)}
+#view>.sec,#view>.note,#view>.empty,#view>.sortrow{grid-column:1/-1}
+#view:has(.maprow){display:block;max-width:980px}
+.mlbl2{flex-basis:34%}
+.card:hover,.maprow:hover,.mini:hover,.cathead:hover{background:var(--panel2)}
+.ov{align-items:center}
+.sheet{max-width:880px;border-radius:16px;border:1px solid var(--line);max-height:86vh;padding:20px 22px}
+.chartbox svg{height:160px}
+body>a[href*="oicr-monitor"]{display:none}
+}
 </style>
 </head>
 <body>
