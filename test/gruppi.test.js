@@ -29,6 +29,7 @@ eq('China All Shares', k('Invesco MSCI China All Shares Cnct ETF EUR', 'Azionari
 eq('Stoxx 600 settoriale', k('Amundi STOXX Europe 600 Indstr ETF Acc EUR', 'Azionari Settore Beni Industriali'), 'Stoxx Europe 600 + Sett. Industriali');
 eq('Stoxx 600 assicurazioni', k('Amundi STOXX Europe 600 Ins ETF Acc EUR', 'Azionari Settore Servizi Finanziari'), 'Stoxx Europe 600 + Sett. Finanziari');
 eq('green bond compresso', k('Invesco EUR Govt & RelatedGrnBdWtdETFDis EUR', 'Obbligazionari Governativi EUR'), null);
+eq('Highest Rated Macro-Weighted compresso', k('Amundi Euro Hg Rt MW Govt Bond 3-5 ETF A EUR', 'Obbligazionari Governativi EUR'), 'Govt EUR 3-5 + Rating');
 eq('scadenza in mesi', k('onemarkets MSCI Euro Govt Bd1M-1YETF€Acc', 'Obbligazionari Governativi Breve Termine EUR'), 'Govt EUR 0-1');
 eq('Treasury long dated', k('Amundi US Treasury Bond Lng DtdETFAcc EUR', 'Obbligazionari Governativi USD'), 'Treasury USA tutte + Lunga durata');
 eq('BTP 10 anni', k('Amundi Italy BTP Govt Bd 10Y ETF Acc', 'Obbligazionari Lungo Termine EUR'), 'Govt Italia 10');
