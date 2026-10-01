@@ -123,9 +123,9 @@ const VAR = [
   ['ex-UK', /\bex[\s-]*uk\b/],
   ['ex-EMU', /\bex\s*emu\b/],
   ['ex-Japan', /\bex[\s-]*j(a)?p(a)?n\b/],
-  ['ex-China', /ex[\s-]*china|exchina/],
+  ['ex-China', /ex[\s-]*chi?na|exchina|ex[\s-]*chn\b/],
   ['All Shares', /all\s*shares?|cnct/],
-  ['Capped', /capped|\bcpd\b|cpd\s*etf/],
+  ['Capped', /capped|\bcpd\b|cpd\s*etf|\d+%\s*cap/],
   ['ex-Fin', /ex[\s-]*f(i)?n/],
   ['Equal Weight', /equal\s*w|eql\s*w|\bew\b|eq\s*wt|eq\s*wgt/],
   ['Min Vol', /min(i)?\s*vol|low\s*vol/],
@@ -137,21 +137,21 @@ const VAR = [
   ['Small/Mid', /small|smcp|sm\s*cap|mid\s*cap|midcap|\bmid\b|mdcp|md[\s-]*cp/],
   ['Growth', /growth|grwth/],
   ['Fattori', new RegExp('factor|fctr|fac\\b|multi\\s*f|mltfct|qvm|moat|millennials|mega\\s*cap|top\\s*\\d+|titans|\\bsf\\b|fac\\s*mix|buyback|' +
-    'covered\\s*call|\\bcc\\b|option|premium|defens')],
+    'covered\\s*call|\\bcc\\b|option|optn|premium|defens|buffer|tail')],
   ['Attivo/Enh', new RegExp('\\bact(i?ve?|v)?\\b|actv|enh|enhanced|active|research|rsh|rsrch|quant|alp\\b|3d\\b|engnrd|' +
     'ai\\s*enh|dynamic|advantage|strategic|tilt|tltd|plus|yld\\s*pl')],
   ['IMI', /\bimi\b|inv\s*mkt|all\s*cap/],
-  ['Sett. Finanziari', /financ|fincl|\bfin\b|banks?\b|insur|\bins\b/],
-  ['Sett. Tecnologia', /info(rmation)?\s*tech|\btech|\bit\b|semicon/],
+  ['Sett. Finanziari', /financ|fincl|\bfinl|\bfin\b|banks?\b|insur|\bins\b/],
+  ['Sett. Tecnologia', /info(rmation)?\s*tech|\btech|\bit\b|semicon|smcndct/],
   ['Sett. Salute', /health|hlth|hlthcr/],
   ['Sett. Energia', /energy|enrgy/],
-  ['Sett. Utilities', /utilit/],
+  ['Sett. Utilities', /utilit|\butils/],
   ['Sett. Industriali', /indust|indstr|constr/],
-  ['Sett. Materiali', /material|matls|mtrls|basic\s*res|bsc\s*(res|mtrls)|chem/],
+  ['Sett. Materiali', /material|matls|mtrls|basic\s*res|bsc\s*(res|mtrls)|chem|mining|metals?\s*(and|&)/],
   ['Sett. Consumi', /cnsmr|consumer|staples|discr|cons\s*(stpl|disc)/],
-  ['Sett. Comunicazioni', /telecom|telecm|comm(unication)?\s*serv|comms|media/],
+  ['Sett. Comunicazioni', /telecom|telecm|comm(unication)?\s*serv|comm?\s*svs|com\s*services|comms|media/],
   ['Sett. Immobiliare', /real\s*estate|reit/],
-  ['Sett. Altri', /auto(mobile)?s?\b|food|oil\s*&?\s*gas|retail|travel|pers\s*&|hhold|household/],
+  ['Sett. Altri', /auto(mobile)?s?\b|food|oil\s*&?\s*gas|retail|travel|pers\s*&|hhold|household|priv(ate)?\s*eq/],
   ['Rating', /aaa|aa\b|highest\s*r|lowest\s*r|hghst|lwst|hr\b|hg\s*rt|\bmw\b|macro\s*w|mcwtd|sov\s*div|sovcap|large\s*cap|lg\s*cp|covered|pfandbr/],
   ['Lunga durata', /lng\s*dtd|long\s*dated|long\s*dur|\blong\b|lg\s*dur/],
   ['Ultrashort', /ultra\s*short|ultrashort/],
@@ -209,6 +209,13 @@ function chiave(nome, cat) {
       !['Dividendi', 'Growth', 'Small/Mid', 'Value', 'Quality', 'Momentum'].includes(x));
   }
   if (base === null) return [null, cl];
+  // Rete di sicurezza sulla CATEGORIA Morningstar: un'abbreviazione mai vista nel nome non deve
+  // bastare a far entrare un ETF settoriale, a opzioni o "ex-Cina" in un gruppo puro (01/10/2026:
+  // "Comm Svs", "Finl", "Utils", "Smcndcts", "Qt Buffer", "Em Ex Chn" erano entrati cosi').
+  const c = String(cat || '');
+  if (/^Alternativi/.test(c)) return [null, cl];
+  if (/^Azionari Settore/.test(c) && !v.some(x => x.startsWith('Sett.'))) return [null, cl];
+  if (/ex-Cina/i.test(c) && !v.includes('ex-China')) return [null, cl];
   return [[base].concat(v).join(' + ') + (h ? ' · hedged' : ''), cl];
 }
 
