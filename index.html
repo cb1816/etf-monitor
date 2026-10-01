@@ -44,10 +44,42 @@ select,input{background:var(--panel);color:var(--txt);border:1px solid var(--lin
 select{flex:1;min-width:0}
 .searchw{position:relative;flex:1}.searchw input{padding-left:32px}
 .searchw::before{content:"🔎";position:absolute;left:9px;top:8px;font-size:14px;opacity:.6}
-nav{position:fixed;bottom:0;left:0;right:0;background:#0d1626;border-top:1px solid var(--line);display:flex;z-index:30;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;background:none;border:none;color:var(--mut);padding:9px 4px 8px;font-size:11px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
-nav button .ic{font-size:18px;line-height:1}
-nav button.on{color:var(--accent)}
+nav{position:fixed;bottom:0;left:0;right:0;background:#0d1626;border-top:1px solid var(--line);display:grid;grid-template-columns:2fr 3fr;gap:6px;z-index:30;padding:6px 6px calc(6px + env(safe-area-inset-bottom))}
+/* Layout v3: viste in due gruppi colorati, come le due domande */
+.ng{border-radius:10px;padding:3px 2px 0;min-width:0}
+.ng.sel{background:rgba(79,156,255,.07)}.ng.all{background:rgba(245,182,66,.06)}
+.ngl{font-size:9px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;text-align:center;white-space:nowrap}
+.ng.sel .ngl{color:var(--accent)}.ng.all .ngl{color:var(--warn)}
+.ngb{display:flex}
+nav button{flex:1;min-width:0;background:none;border:none;color:var(--mut);padding:9px 2px 10px;font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.ng.sel button.on{color:var(--accent);font-weight:800}.ng.all button.on{color:var(--warn);font-weight:800}
+.side{display:contents}
+.filtbtn{display:flex;align-items:center;gap:8px;width:100%;max-width:760px;margin:8px auto 0;background:#111b2d;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:left;cursor:pointer;color:var(--txt);font-family:inherit}
+.filtbtn .fk{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+.filtbtn .fs{flex:1;min-width:0;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.filtbtn .fm{font-size:12px;font-weight:700;color:var(--accent)}
+.controls{display:none}
+header.fopen .controls{display:block;max-height:62vh;overflow-y:auto;background:#111b2d;border:1px solid var(--line);border-radius:12px;padding:8px 10px 10px;margin-top:6px}
+.fhead{display:flex;align-items:baseline;margin-bottom:6px}
+.fhead span{flex:1;font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:var(--mut)}
+.azz{background:none;border:none;color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;padding:4px 2px;font-family:inherit}
+.flbl{font-size:10.5px;color:var(--mut);margin:8px 2px 4px}
+.vhead{border-radius:12px;padding:10px 12px;margin:10px 0 4px;display:flex;flex-direction:column;gap:8px}
+.vhead.sel{background:rgba(79,156,255,.07);border:1px solid rgba(79,156,255,.30)}
+.vhead.all{background:rgba(245,182,66,.06);border:1px solid rgba(245,182,66,.28)}
+.vtop{display:flex;align-items:baseline;gap:8px}
+.vlab{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase}
+.vhead.sel .vlab{color:var(--accent)}.vhead.all .vlab{color:var(--warn)}
+.vtit{font-size:16px;font-weight:800}
+.vrow{display:flex;align-items:center;gap:8px;min-width:0}
+.vrow .chips{flex:1;min-width:0;padding-bottom:0}
+.vk{flex:0 0 auto;font-size:11px;color:var(--mut)}
+.vhead .sortrow{margin:0;align-items:center}
+.vhead.all .sortrow .sc.on{border-color:var(--warn)}
+.sortrow .sc{font-family:inherit}
+.vnote{font-size:11px;color:var(--mut);line-height:1.45}
+.vhead #vtools:empty{display:none}
+header.fopen{position:relative}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;cursor:pointer}
 .card:active{background:var(--panel2)}
 .rank{flex:0 0 30px;text-align:center;font-weight:800;font-size:15px;color:var(--mut)}
@@ -175,27 +207,40 @@ details.altri[open]{padding-bottom:8px}
 .gbox .gl{font-size:11.5px;color:var(--mut);line-height:1.55}.gbox .gl a{color:inherit}
 /* Layout PC (01/10/2026): solo schermi larghi con mouse. Telefoni e tablet touch restano identici. */
 @media (min-width:1024px) and (hover:hover) and (pointer:fine){
-:root{--side:188px;--maxw:1240px}
+:root{--side:300px;--maxw:1240px}
 body{padding-left:var(--side)}
-header{position:static;padding:14px 24px 10px}
-.suite,.hrow,.hmeta,.controls{max-width:var(--maxw)}
-.wrap{max-width:var(--maxw);padding:4px 24px 48px}
-h1{font-size:20px}
-.controls{display:grid;grid-template-columns:1fr 1fr;column-gap:8px}
-.controls>.chips{grid-column:1/-1;flex-wrap:wrap;overflow:visible}
+/* Layout v3: la colonna di sinistra e' il pannello di comando (nome, viste, filtri) */
+.side{display:flex;flex-direction:column;gap:12px;position:fixed;left:0;top:0;bottom:0;width:var(--side);overflow-y:auto;background:#0d1626;border-right:1px solid var(--line);padding:16px 14px;z-index:30;box-sizing:border-box}
+header{display:contents}
+.hrow{order:1;max-width:none;margin:0;padding:0 4px}.hmeta{order:2;max-width:none;margin:-8px 0 0;padding:0 4px}
+nav{order:3}.controls{order:4}.suite{order:5;margin:auto 0 0;padding:0 4px;max-width:none}
+.suite{gap:4px;flex-wrap:nowrap}.suite a,.suite span{font-size:11.5px;padding:2px 8px}
+h1{font-size:17px}
+.filtbtn{display:none}
+.controls{display:flex;flex-direction:column;background:#111b2d;border:1px solid var(--line);border-radius:12px;padding:10px;margin:0;max-width:none}
+.controls .row2{margin:0}
+.flbl{margin:9px 2px 4px}
+#macroChips{display:grid;grid-template-columns:1fr 1fr;gap:4px;overflow:visible;padding:0}
+#tipoChips{flex-wrap:wrap;overflow:visible;gap:4px;padding:0}
+.controls .chip{font-size:11.5px;padding:5px 8px;border-radius:7px;white-space:normal;line-height:1.25}
 .chip:hover:not(.on){color:var(--txt);border-color:var(--mut)}
-nav{top:0;bottom:0;right:auto;width:var(--side);flex-direction:column;justify-content:flex-start;gap:4px;padding:18px 10px;border-top:none;border-right:1px solid var(--line)}
-nav button{flex:0 0 auto;flex-direction:row;justify-content:flex-start;gap:10px;padding:10px 12px;font-size:13.5px;border-radius:10px}
-nav button:hover{background:var(--panel);color:var(--txt)}
-nav button.on{background:var(--chip);color:var(--accent)}
+nav{position:static;display:flex;flex-direction:column;gap:8px;background:none;border:none;padding:0}
+.ng{padding:8px;border:1px solid rgba(79,156,255,.30)}.ng.all{border-color:rgba(245,182,66,.28)}
+.ngl{text-align:left;font-size:10px;padding:2px 6px 6px}
+.ngb{flex-direction:column;gap:2px}
+nav button{text-align:left;padding:8px 10px;font-size:13.5px;border-radius:8px;color:#c9d3e3}
+nav button:hover{background:rgba(255,255,255,.05)}
+.ng.sel button.on{background:var(--accent);color:#04101f}.ng.all button.on{background:var(--warn);color:#1a1204}
+.wrap{max-width:var(--maxw);padding:18px 24px 48px}
+.vhead{margin:0 0 12px;padding:14px 16px}
+.vtit{font-size:19px}
 #view{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:10px;align-items:start}
 #view>*{min-width:0}
-#view>.catcard.open{grid-column:1/-1}
-.catcard.open .grid.g2{grid-template-columns:repeat(4,1fr)}
 #view>.sec,#view>.note,#view>.empty,#view>.sortrow{grid-column:1/-1}
+#view>.sec:first-child{margin-top:0}
 #view:has(.maprow){display:block;max-width:980px}
 .mlbl2{flex-basis:34%}
-.card:hover,.maprow:hover,.mini:hover,.cathead:hover{background:var(--panel2)}
+.card:hover,.maprow:hover,.mini:hover{background:var(--panel2)}
 .ov{align-items:center}
 .sheet{max-width:880px;border-radius:16px;border:1px solid var(--line);max-height:86vh;padding:20px 22px}
 .chartbox svg{height:160px}
@@ -210,26 +255,34 @@ body>a[href*="oicr-monitor"]{display:none}
 </style>
 </head>
 <body>
+<div class="side">
 <header>
   <div class="suite" role="navigation" aria-label="My Way"><a href="https://myway-corrado.vercel.app" class="home">← My Way</a><a href="https://magut.vercel.app">Portafogli</a><a href="https://oicr-monitor.vercel.app">Fondi</a><span aria-current="page">ETF</span></div>
   <div class="hrow"><h1><b>ETF-ETC-ETN</b> Monitor</h1><button id="infoBtn" class="infob" aria-label="Info">i</button></div>
   <div class="hmeta"><div class="sub" id="cnt"></div><div class="asof" id="asof"></div></div>
-  <div class="controls">
-    <div class="chips" id="metricChips"></div>
-    <div class="chips" id="macroChips" style="margin-top:6px"></div>
-    <div class="chips" id="tipoChips" style="margin-top:6px"></div>
-    <div class="row2"><select id="catSel"></select></div>
-    <div class="row2"><div class="searchw"><input id="q" placeholder="Cerca fondo o ISIN…" autocomplete="off"></div></div>
+  <button type="button" class="filtbtn" id="filtBtn" aria-expanded="false" aria-controls="controls"><span class="fk">Filtri</span><span class="fs" id="filtSum"></span><span class="fm" id="filtMod">Modifica</span></button>
+  <div class="controls" id="controls">
+    <div class="fhead"><span>Filtri</span><button type="button" class="azz" id="azzBtn">Azzera</button></div>
+    <div class="row2"><div class="searchw"><input id="q" placeholder="Cerca ETF o ISIN…" autocomplete="off" aria-label="Cerca ETF o ISIN"></div></div>
+    <div class="flbl">Macro</div>
+    <div class="chips" id="macroChips"></div>
+    <div class="flbl">Tipo</div>
+    <div class="chips" id="tipoChips"></div>
+    <div class="flbl">Categoria Morningstar</div>
+    <div class="row2"><select id="catSel" aria-label="Categoria Morningstar"></select></div>
   </div>
 </header>
-<div class="wrap"><div id="view"></div></div>
-<nav>
-  <button data-tab="rank" class="on"><span class="ic">📊</span>Classifica</button>
-  <button data-tab="topflop"><span class="ic">🏆</span>Top / Flop</button>
-  <button data-tab="cat"><span class="ic">🗂️</span>Categorie</button>
-  <button data-tab="mappa"><span class="ic">🗺️</span>Mappa</button>
-  <button data-tab="idee"><span class="ic">💡</span>Idee</button>
+<nav aria-label="Viste">
+  <div class="ng sel"><div class="ngl">Quale ETF</div><div class="ngb"><button data-tab="rank" class="on">Classifica</button><button data-tab="topflop">Top / Flop</button></div></div>
+  <div class="ng all"><div class="ngl">Dove posizionarsi</div><div class="ngb"><button data-tab="cat">Categorie</button><button data-tab="mappa">Mappa</button><button data-tab="idee">Idee</button></div></div>
 </nav>
+</div>
+<div class="wrap">
+  <section class="vhead sel" id="vhead" aria-label="Vista"><div class="vtop"><span class="vlab" id="vlab">Quale ETF</span><span class="vtit" id="vtit">Classifica</span></div>
+    <div class="vrow" id="mrow"><span class="vk">Periodo</span><div class="chips" id="metricChips"></div></div>
+    <div id="vtools"></div></section>
+  <div id="view"></div>
+</div>
 <div class="ov" id="ov"><div class="sheet" id="sheet"></div></div>
 <script>
 (function(){
@@ -259,7 +312,7 @@ body>a[href*="oicr-monitor"]{display:none}
       }
     };}
   }
-  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=17';
+  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=18';
     s.onload=function(){try{head(d)}catch(e){}};document.body.appendChild(s);}
   function withFilter(d){
     return Promise.resolve(d)
@@ -270,7 +323,7 @@ body>a[href*="oicr-monitor"]{display:none}
     .catch(function(){fetch('data/snapshot.json').then(function(r){return r.json()}).then(function(d){d.meta.source+=' · snapshot offline';return withFilter(d)}).then(run)});
 })();
 </script>
-<a href="https://oicr-monitor.vercel.app" style="position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));right:14px;z-index:50;background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:20px;font-size:12px;text-decoration:none;border:1px solid #334155">⇄ Fondi</a>
+<a href="https://oicr-monitor.vercel.app" style="position:fixed;bottom:calc(84px + env(safe-area-inset-bottom));right:14px;z-index:50;background:#1e293b;color:#e2e8f0;padding:8px 12px;border-radius:20px;font-size:12px;text-decoration:none;border:1px solid #334155">⇄ Fondi</a>
 <script>if('serviceWorker' in navigator)addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){})});</script>
 </body>
 </html>
