@@ -207,72 +207,133 @@ function viewCat(){let keys=catPool();
   h+='<div class="sec">'+keys.length+' categorie · score di allocazione'+
     (inv&&state.catSort!=='az'?' · dal più basso':'')+'</div>';
 
-  keys.forEach(c=>{const st=stato(c);
-    const membri=F.filter(f=>f[I.cat]===c.nome&&(!state.tipo||tipoOf(f)===state.tipo))
-      .sort((a,b)=>{const ta=a[I.ter]===null?Infinity:a[I.ter],tb=b[I.ter]===null?Infinity:b[I.ter];
-        if(ta!==tb)return ta-tb;
-        const aa=a[I.aum]===null?-1:a[I.aum],ab=b[I.aum]===null?-1:b[I.aum];
-        if(aa!==ab)return ab-aa;
-        return String(a[I.name]).localeCompare(String(b[I.name]),'it');});
-    h+='<div class="catcard"><div class="cathead" onclick="this.parentNode.classList.toggle(\'open\')">'+
-      '<div class="cn">'+esc(c.nome)+'<div class="cmeta">'+esc(c.macro)+' · '+c.n+' strumenti'+
-        (st?' · '+st.ico+' '+st.lbl:'')+'</div></div>'+
-      '<div class="cval"><div class="cv '+(c.score===null?'zero':cls(c.score-50))+'">'+
+  keys.forEach(c=>{const st=stato(c),ng=gruppiCat(membriCat(c.nome)).gr.length;
+    h+='<div class="card" onclick="openCat(\''+jsq(c.nome)+'\')">'+
+      '<div class="info"><div class="nm">'+esc(c.nome)+'</div>'+
+        '<div class="ct">'+esc(c.macro)+' · '+c.n+' strumenti'+(st?' · '+st.ico+' '+st.lbl:'')+'</div>'+
+        (ng?'<span class="ctag">'+ng+(ng===1?' indice confrontabile':' indici confrontabili')+'</span>':'')+'</div>'+
+      '<div class="val"><div class="pct '+(c.score===null?'zero':cls(c.score-50))+'">'+
         (c.score===null?'—':c.score.toFixed(0))+'</div>'+
-      '<div class="cmeta">'+(c.score===null?'n&lt;'+MINN:'score')+'</div></div></div>'+
-      '<div class="catbody">'+
-      '<div class="grid g2" style="margin:6px 0">'+
-        kvBox('Trend 6m',fmt(c.trend))+kvBox('Mom. 12-1',fmt(c.mom121))+
-        kvBox('Accelerazione',fmtAcc(c.accel))+kvBox('Ampiezza macro',num(c.ampiezza,0)+'%')+
-      '</div>'+
-      (c.score===null?'<div class="note">Meno di '+MINN+' strumenti: le metriche relative restano vuote.</div>':'')+
-      strumentiCat(membri)+
-      '</div></div>';});
+        '<div class="stars" style="color:var(--mut);letter-spacing:0">'+(c.score===null?'n&lt;'+MINN:'score')+'</div></div>'+
+      '<span class="chev" aria-hidden="true">›</span></div>';});
   return h;}
-/* Strumenti della categoria. Quelli in un gruppo-indice verificato si ordinano per
-   tracking difference (stesso indice: conta quanto lo replicano bene); tutti gli altri
-   restano per costo, perche' su indici diversi la TD non e' confrontabile. */
-function strumentiCat(membri){
-  if(!membri.length)return'';
-  const perG=new Map(),altri=[];
+
+/* ================= SCHEDA CATEGORIA (v2, 01/10/2026) =================
+   La categoria si apre in un foglio con le due domande separate:
+   1 · Dove mi posiziono (score di allocazione, sulla categoria)
+   2 · Quale ETF scegliere (efficienza di replica, sullo strumento).
+   Gli strumenti in un gruppo-indice verificato si ordinano per tracking difference
+   (stesso indice: conta quanto lo replicano bene); tutti gli altri restano per costo,
+   perche' su indici diversi la TD non e' confrontabile. Tutti i gruppi verificati
+   stanno dentro una sola categoria (controllato sui dati live il 01/10/2026). */
+function perCosto(a,b){const ta=a[I.ter]===null?Infinity:a[I.ter],tb=b[I.ter]===null?Infinity:b[I.ter];
+  if(ta!==tb)return ta-tb;
+  const aa=a[I.aum]===null?-1:a[I.aum],ab=b[I.aum]===null?-1:b[I.aum];
+  if(aa!==ab)return ab-aa;
+  return String(a[I.name]).localeCompare(String(b[I.name]),'it');}
+function membriCat(nome){return F.filter(f=>f[I.cat]===nome&&(!state.tipo||tipoOf(f)===state.tipo)).sort(perCosto);}
+/* {gr:[{gi,g,gem,pul,corti,sporchi}] dal gruppo piu' numeroso, altri:[...] per costo} */
+function gruppiCat(membri){const perG=new Map();let altri=[];
   for(const f of membri){const r=replOf(f[I.isin]);
     if(r&&r.g.st==='ok'){if(!perG.has(r.gi))perG.set(r.gi,[]);perG.get(r.gi).push(f);}
     else altri.push(f);}
-  if(!perG.size)return'<div class="mlbl">Strumenti, per costo crescente</div>'+lista25(altri);
-  const perTer=(a,b)=>(a[I.ter]===null?9:a[I.ter])-(b[I.ter]===null?9:b[I.ter]);
-  let h='';
-  [...perG.entries()].sort((a,b)=>b[1].length-a[1].length).forEach(([gi,fs])=>{
-    const g=REPL.g[gi],gem=gemelli(gi);
-    // ordine = posizione nel gruppo intero, cosi' i numeri a sinistra restano in sequenza
-    const pul=fs.filter(f=>REPL.f[f[I.isin]][3]===0).sort((a,b)=>gem.indexOf(a)-gem.indexOf(b));
-    const corti=fs.filter(f=>REPL.f[f[I.isin]][3]===2).sort(perTer);
-    const sporchi=fs.filter(f=>REPL.f[f[I.isin]][3]===1);
-    h+='<div class="mlbl" style="color:var(--accent);font-weight:800;margin-top:10px">Indice '+esc(nomeGruppo(g))+
-      ' <span class="qbadge q1">gruppo verificato</span></div>'+
-      '<div style="display:flex;justify-content:space-between;font-size:10px;color:var(--mut);'+
-      'text-transform:uppercase;letter-spacing:.4px;padding:2px 0;border-bottom:1px solid var(--line)">'+
-      '<span># · strumento</span><span>TD / anno · TER</span></div>'+
-      pul.map(f=>tdRow(f,gem.indexOf(f)+1,REPL.f[f[I.isin]])).join('');
-    if(corti.length)h+='<div class="note" style="margin-top:4px"><b>Meno di 3 anni di storia</b>, per costo: '+
-      corti.map(f=>'<a href="#" onclick="event.preventDefault();event.stopPropagation();detail(\''+f[I.isin]+'\')" '+
-        'style="color:inherit">'+esc(f[I.name])+'</a> '+num(f[I.ter],2)).join(' · ')+'</div>';
-    if(sporchi.length)h+='<div class="note" style="margin-top:2px"><b style="color:var(--warn)">Dati instabili</b>, '+
-      'esclusi dal confronto: '+sporchi.map(f=>esc(f[I.name])).join(' · ')+'</div>';
-  });
-  h+='<div class="note">TD = quanto l\'ETF rende in più o in meno, all\'anno, della mediana degli ETF '+
-    'sullo stesso indice negli ultimi 3 anni'+(SFIN?' (serie al '+esc(SFIN)+')':'')+'. Il numero a sinistra è '+
-    'la posizione nel gruppo. Differenze sotto ±0.1 punti stanno dentro l\'incertezza della stima.</div>';
-  if(altri.length)h+='<div class="mlbl" style="margin-top:10px">Altri '+altri.length+' strumenti, per costo</div>'+
-    '<div class="note" style="margin:0 0 4px">Indici diversi fra loro (ESG, equal weight, fattori, gestione attiva) '+
-    'o non riconoscibili dal nome: la tracking difference non è confrontabile.</div>'+lista25(altri);
-  return h;}
+  const gr=[];
+  perG.forEach((fs,gi)=>{const gem=gemelli(gi),q=f=>REPL.f[f[I.isin]][3];
+    const pul=fs.filter(f=>q(f)===0).sort((a,b)=>gem.indexOf(a)-gem.indexOf(b));
+    // senza ETF puliti (es. per il filtro Tipo) il gruppo non si confronta: i suoi tornano per costo
+    if(!pul.length){altri=altri.concat(fs);return;}
+    gr.push({gi,g:REPL.g[gi],gem,pul,corti:fs.filter(f=>q(f)===2).sort(perCosto),sporchi:fs.filter(f=>q(f)===1)});});
+  gr.sort((a,b)=>b.pul.length-a.pul.length);
+  altri.sort(perCosto);
+  return {gr,altri};}
+/* scala unica delle barre per tutta la categoria, cosi' gruppi affiancati si confrontano a occhio */
+function scalaTD(gr){let m=0.1;gr.forEach(x=>x.pul.forEach(f=>{m=Math.max(m,Math.abs(REPL.f[f[I.isin]][1]))}));return m;}
+function secn(n,t,s){return '<div class="secn"><span class="b'+(n===2?' a2':'')+'">'+n+'</span>'+
+  '<span class="t">'+t+'</span><span class="s">'+s+'</span></div>';}
+function legendaTD(){return 'Barra verde a destra = rende più dei gemelli, rossa a sinistra = meno. '+
+  'TD = scarto annuo dalla mediana degli ETF sullo stesso indice, ultimi 3 anni'+(SFIN?' (serie al '+esc(SFIN)+')':'')+
+  '. ± = margine della stima: differenze più piccole sono di fatto un pareggio. Il numero a sinistra è la posizione nel gruppo.';}
+let ovCat=null,ovPrev=null;
+function showSheet(html,wide){const sh=document.getElementById('sheet');sh.innerHTML=html;
+  sh.classList.toggle('wide',!!wide);sh.scrollTop=0;document.getElementById('ov').classList.add('on');}
+function allocBox(c,st){
+  const col=c.score===null?'var(--mut)':(c.score>=50?'var(--pos)':(c.score>=40?'var(--warn)':'var(--neg)'));
+  const m=(k,v)=>'<div><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
+  return '<div class="alloc"><div class="a1"><div class="atop"><div><span class="big" style="color:'+col+'">'+
+      (c.score===null?'—':c.score.toFixed(0))+'</span><span class="of"> / 100</span></div>'+
+      (st?'<span class="spill">'+st.ico+' '+esc(st.lbl)+'</span>':'')+'</div>'+
+      (c.score!==null?'<div class="abar"><i style="width:'+c.score+'%;background:'+col+'"></i></div>':
+        '<div class="note" style="margin-top:4px">Meno di '+MINN+' strumenti: le metriche relative restano vuote.</div>')+'</div>'+
+    '<div class="m4">'+m('Trend 6m','<span class="'+cls(c.trend)+'">'+fmt(c.trend)+'</span>')+
+      m('Mom. 12-1','<span class="'+cls(c.mom121)+'">'+fmt(c.mom121)+'</span>')+
+      m('Accelerazione','<span class="'+cls(c.accel)+'">'+fmtAcc(c.accel)+'</span>')+
+      m('Ampiezza macro',num(c.ampiezza,0)+'%')+'</div></div>';}
+function gCard(x,mx){const best=x.pul[0],r1=REPL.f[best[I.isin]],r2=x.pul[1]&&REPL.f[x.pul[1][I.isin]];
+  const pari=r2&&(r1[1]-r2[1])<Math.max(r1[2],r2[2]);
+  let h='<div class="gcard"><div class="ghead"><span class="gname">'+esc(nomeGruppo(x.g))+'</span>'+
+    '<span class="qbadge q1">verificato</span><span class="gn">'+x.pul.length+' ETF confrontati</span></div>'+
+    '<div class="gbest">'+(pari
+      ?'In testa <b>'+esc(best[I.name])+'</b> ('+fmtTD(r1[1])+'), ma col secondo è di fatto alla pari: la differenza sta dentro il ±.'
+      :'Il più efficiente: <b>'+esc(best[I.name])+'</b>, <b class="'+clsTD(r1[1])+'">'+fmtTD(r1[1])+'</b> l\'anno sui gemelli.')+'</div>'+
+    tdHead()+x.pul.slice(0,3).map(f=>tdRow(f,x.gem.indexOf(f)+1,REPL.f[f[I.isin]],mx)).join('');
+  const ex=[];
+  if(x.corti.length)ex.push('+ '+x.corti.length+' con meno di 3 anni');
+  if(x.sporchi.length)ex.push(x.sporchi.length+' con dati instabili');
+  if(x.pul.length>3||ex.length)h+='<button class="more" onclick="openGruppo('+x.gi+')">'+
+    (x.pul.length>3?'Mostra tutti e '+x.pul.length:'Vedi il gruppo completo')+' →</button>';
+  if(ex.length)h+='<div class="gex">'+ex.join(' · ')+'</div>';
+  return h+'</div>';}
+function openCat(nome){const c=CBY[nome];if(!c)return;ovCat=nome;ovPrev={t:'cat'};
+  const st=stato(c),membri=membriCat(nome),{gr,altri}=gruppiCat(membri);
+  let b='<button class="closex" onclick="closeOv()">✕</button><h2>'+esc(c.nome)+'</h2>'+
+    '<div class="mc">'+esc(c.macro)+' · '+c.n+' strumenti'+
+      (state.tipo?' · filtro '+esc(state.tipo)+': '+membri.length:'')+'</div>'+
+    secn(1,'Dove mi posiziono','allocazione')+allocBox(c,st)+
+    secn(2,'Quale ETF scegliere','selezione');
+  if(gr.length){const mx=scalaTD(gr);
+    b+='<div class="ip mut">'+(gr.length===1
+      ?'In questa categoria c\'è un indice replicato da più ETF: ecco chi lo replica meglio.'
+      :'In questa categoria ci sono '+gr.length+' indici replicati da più ETF. Per ognuno, chi lo replica meglio.')+'</div>'+
+      '<div class="ggrid">'+gr.map(x=>gCard(x,mx)).join('')+'</div>';
+    if(altri.length)b+='<details class="altri"><summary><span class="st"><b>Altri '+altri.length+' strumenti, per costo</b>'+
+      '<small>ESG, equal weight, fattori, gestione attiva o indice non riconoscibile dal nome: '+
+      'indici diversi fra loro, la tracking difference non è confrontabile.</small></span>'+
+      '<span class="chev" aria-hidden="true">⌄</span></summary>'+lista25(altri)+'</details>';
+    b+='<div class="note">'+legendaTD()+'</div>';
+  }else{
+    b+='<div class="ip mut">Nessun indice di questa categoria è replicato da abbastanza ETF con dati puliti '+
+      'per confrontarne la replica: gli strumenti sono ordinati per costo, poi per patrimonio.</div>'+
+      (altri.length?'<div class="mlbl">Strumenti, per costo crescente</div>'+lista25(altri):
+        '<div class="note">Nessuno strumento per il filtro scelto.</div>');}
+  showSheet(b,true);}
+function openGruppo(gi){if(!ovCat)return;const {gr}=gruppiCat(membriCat(ovCat));
+  const x=gr.find(y=>y.gi===gi);if(!x)return openCat(ovCat);ovPrev={t:'gr',gi};
+  const mx=scalaTD(gr),lk=f=>'<a href="#" onclick="event.preventDefault();detail(\''+f[I.isin]+'\')">'+esc(f[I.name])+'</a>';
+  let b='<button class="closex" onclick="closeOv()">✕</button>'+
+    '<button class="back" onclick="openCat(\''+jsq(ovCat)+'\')">← '+esc(ovCat)+'</button>'+
+    '<h2>Indice '+esc(nomeGruppo(x.g))+' <span class="qbadge q1">verificato</span></h2>'+
+    '<div class="ip mut" style="margin-top:6px">'+x.pul.length+' ETF sullo stesso indice, ordinati per quanto rendono in più '+
+      'o in meno dei gemelli ogni anno. Il costo (TER) è già dentro: qui conta anche quello che il TER non dice.</div>'+
+    tdHead()+x.pul.map(f=>tdRow(f,x.gem.indexOf(f)+1,REPL.f[f[I.isin]],mx)).join('');
+  if(x.corti.length||x.sporchi.length){b+='<div class="gbox">';
+    if(x.corti.length)b+='<div><b>Meno di 3 anni di storia</b> · per costo</div><div class="gl">'+
+      x.corti.map(f=>lk(f)+' '+(f[I.ter]===null?'':num(f[I.ter],2)+'%')).join(' · ')+'</div>';
+    if(x.sporchi.length)b+='<div style="margin-top:6px"><b style="color:var(--warn)">Dati instabili</b> · esclusi dal confronto</div>'+
+      '<div class="gl">'+x.sporchi.map(lk).join(' · ')+'</div>';
+    b+='</div>';}
+  b+='<div class="note">'+legendaTD()+'</div>';
+  showSheet(b,true);}
+function indietro(){if(!ovCat)return closeOv();
+  if(ovPrev&&ovPrev.t==='gr')openGruppo(ovPrev.gi);else openCat(ovCat);}
 function lista25(fs){return fs.slice(0,25).map(miniRow).join('')+
   (fs.length>25?'<div class="note">…e altri '+(fs.length-25)+'. Affina con la ricerca.</div>':'');}
-function tdRow(f,rank,r){return '<div class="mini" onclick="event.stopPropagation();detail(\''+f[I.isin]+'\')">'+
-  '<div style="flex:0 0 22px;color:var(--mut);font-weight:700">'+rank+'</div>'+
-  '<div class="mn">'+esc(f[I.name])+'</div>'+
-  '<div style="flex:0 0 auto;font-size:12px;white-space:nowrap"><b class="'+clsTD(r[1])+'">'+fmtTD(r[1])+'</b> '+
-  '<span style="color:var(--mut);font-size:10.5px">±'+r[2].toFixed(2)+' · '+num(f[I.ter],2)+'%</span></div></div>';}
+function tdHead(){return '<div class="tdr tdh"><span>#</span><span>ETF e scarto</span><span>TD / anno</span><span>TER</span></div>';}
+function tdRow(f,rank,r,mx){const td=r[1],w=Math.min(50,Math.abs(td)/(mx||0.1)*50);
+  return '<div class="tdr" onclick="detail(\''+f[I.isin]+'\')"><span class="r">'+rank+'</span>'+
+    '<span class="nmw"><span class="tn">'+esc(f[I.name])+'</span><span class="dbar"><i class="'+(td>=0?'p':'n')+
+      '" style="width:'+w.toFixed(1)+'%"></i></span></span>'+
+    '<span class="tv '+clsTD(td)+'">'+fmtTD(td)+'<small>±'+r[2].toFixed(2)+'</small></span>'+
+    '<span class="ter">'+(f[I.ter]===null?'—':num(f[I.ter],2)+'%')+'</span></div>';}
 function kvBox(k,v){return '<div class="kv"><div class="k">'+k+'</div><div class="v sm">'+v+'</div></div>';}
 function setSort(s){if(state.catSort===s)state.catInv=!state.catInv;else{state.catSort=s;state.catInv=false;}render();}
 function miniRow(f){return '<div class="mini" onclick="event.stopPropagation();detail(\''+f[I.isin]+'\')">'+
@@ -300,9 +361,7 @@ function viewMappa(){const keys=catPool().filter(c=>c.trend!==null).slice()
       '<div class="mval2 '+cls(v)+'">'+fmt(v)+'</div>'+
       '<div style="flex:0 0 20px;text-align:center">'+(st?st.ico:'')+'</div></div>';});
   return h;}
-function pickCat(c){state.cat=c;state.tab='cat';
-  document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x.dataset.tab==='cat'));
-  buildCatSel();render();}
+function pickCat(c){openCat(c);}
 
 /* ================= COPPIE E SPREAD =================
    Metodologia §8. Tabella STATICA scelta a mano: sotto lo stesso nome commerciale
@@ -444,26 +503,30 @@ function openCoppie(){
 }
 
 /* ================= IDEE ================= */
+function irow(q,tag,f,dato){return '<div class="irow"><span class="qbadge '+q+'">'+tag+'</span>'+
+  '<span class="ie">'+esc(f[I.name])+'</span><span class="id">'+dato+'</span></div>';}
 function viewIdee(){
   const base=catPool().filter(c=>c.score!==null);
   let h=viewCoppie();
   h+='<div class="note" style="margin:12px 4px">Le idee stanno a livello di <b>categoria</b>: '+
     'su un ETF la scelta che conta e\' dove ti posizioni, non quale replica compri. '+
-    'Dentro ogni categoria, gli strumenti sono ordinati per costo.</div>';
+    'Sotto ogni idea, lo strumento con cui prenderla: la <b>replica migliore</b> dove la categoria ha un '+
+    'indice confrontabile, altrimenti il <b>più economico</b>.</div>';
   if(!base.length)return h+'<div class="empty">Nessuna categoria con score per questa selezione.</div>';
 
   const blocco=(titolo,cls2,nota,lista)=>{
     if(!lista.length)return'';
     let s='<div class="sec '+cls2+'">'+titolo+'</div><div class="note" style="margin:0 4px 6px">'+nota+'</div>';
     s+=lista.map(c=>{const st=stato(c);
-      const best=F.filter(f=>f[I.cat]===c.nome&&f[I.ter]!==null)
-        .sort((a,b)=>a[I.ter]-b[I.ter])[0];
+      const membri=membriCat(c.nome),{gr}=gruppiCat(membri);let riga='';
+      if(gr.length){const f=gr[0].pul[0],r=REPL.f[f[I.isin]];
+        riga=irow('qe','replica migliore',f,'TD '+fmtTD(r[1])+(f[I.ter]===null?'':' · TER '+num(f[I.ter],2)+'%'));}
+      else{const f=membri.find(x=>x[I.ter]!==null);if(f)riga=irow('q1','più economico',f,'TER '+num(f[I.ter],2)+'%');}
       return '<div class="card" onclick="pickCat(\''+jsq(c.nome)+'\')">'+
         '<div class="info"><div class="nm">'+(st?st.ico+' ':'')+esc(c.nome)+'</div>'+
         '<div class="ct">'+esc(c.macro)+' · '+c.n+' strumenti · ampiezza macro '+num(c.ampiezza,0)+'%</div>'+
-        (best?'<div class="badges"><span class="qbadge q1">più economico: '+num(best[I.ter],2)+'%</span></div>':'')+
         '</div><div class="val"><div class="pct '+cls(c.trend)+'">'+fmt(c.trend)+'</div>'+
-        '<div class="stars" style="color:var(--mut)">score '+c.score.toFixed(0)+'</div></div></div>';}).join('');
+        '<div class="stars" style="color:var(--mut)">score '+c.score.toFixed(0)+'</div></div>'+riga+'</div>';}).join('');
     return s;};
 
   h+=blocco('🚀 In accelerazione','top',
@@ -534,7 +597,10 @@ function detail(isin){const f=F.find(x=>x[I.isin]===isin);if(!f)return;
   const c=CBY[f[I.cat]];const st=stato(c);
   const kv=(k,v,sm)=>'<div class="kv"><div class="k">'+k+'</div><div class="v'+(sm?' sm':'')+'">'+v+'</div></div>';
   const p=v=>'<span class="'+cls(v)+'">'+fmt(v)+'</span>';
-  let b='<button class="closex" onclick="closeOv()">✕</button><h2>'+esc(f[I.name])+'</h2>'+
+  let b='<button class="closex" onclick="closeOv()">✕</button>'+
+    (ovCat?'<button class="back" onclick="indietro()">← '+(ovPrev&&ovPrev.t==='gr'
+      ?'Indice '+esc(nomeGruppo(REPL.g[ovPrev.gi])):esc(ovCat))+'</button>':'')+
+    '<h2>'+esc(f[I.name])+'</h2>'+
     '<div class="mc"><span class="pill">'+esc(f[I.isin])+'</span>'+
       (f[I.tick]?'<span class="pill">'+esc(f[I.tick])+'</span>':'')+esc(f[I.cat]||'categoria n/d')+'</div>';
   if(f[I.ccy])b+='<div class="note" style="color:var(--warn)">Attenzione: performance restituite in '+
@@ -578,8 +644,7 @@ function detail(isin){const f=F.find(x=>x[I.isin]===isin);if(!f)return;
     '. Liquidità e spread denaro-lettera <b>non</b> sono considerati: non sono nello screener, '+
     'e su uno strumento sottile possono valere più di anni di TER. '+
     'Informativa, non sollecitazione all\'investimento.</div>';
-  document.getElementById('sheet').innerHTML=b;
-  document.getElementById('ov').classList.add('on');}
+  showSheet(b,false);}
 
 /* Efficienza di replica nella scheda strumento. Solo per gruppi verificati. */
 function sezioneReplica(f){const r=replOf(f[I.isin]);
@@ -635,6 +700,15 @@ function openInfo(){
       'obbligazionari). ESG, leva, fattori e fondi attivi non si raggruppano: restano per costo. '+
       'Il <b>±</b> accanto alla TD è il margine d\'errore della stima: se due ETF differiscono meno di '+
       'così, sono di fatto pari. Il numero davanti al nome è la posizione nel gruppo.</div>'+
+    '<div class="ip"><b>Dove lo vedi.</b> Tocca una categoria: si apre la sua scheda, con la sezione '+
+      '<b>1 · Dove mi posiziono</b> (lo score) e la sezione <b>2 · Quale ETF scegliere</b>. Nella 2, per ogni '+
+      'indice confrontabile, i primi tre per tracking difference; <b>Mostra tutti</b> apre il gruppo intero, '+
+      'con anche gli ETF giovani e quelli con dati instabili. La <b>barra</b> parte dal centro: verde a destra '+
+      '= rende più dei gemelli, rossa a sinistra = meno, sulla stessa scala per tutta la categoria. '+
+      '<b>Altri N strumenti, per costo</b> si apre al tocco e raccoglie quelli senza un indice confrontabile.<br>'+
+      'Nell\'elenco Categorie l\'etichetta <b>N indici confrontabili</b> dice quanti gruppi verificati ha la '+
+      'categoria. In Idee, sotto ogni categoria, <b>replica migliore</b> è il primo del gruppo più numeroso; '+
+      'dove non c\'è un gruppo compare il <b>più economico</b> per TER.</div>'+
     '<div class="ihead">Le metriche di categoria</div>'+
     '<div class="ip"><b>Trend 6m</b>: mediana dei rendimenti a 6 mesi. Assoluto, non relativo.<br>'+
       '<b>Mom. 12-1</b>: (1+r12)/(1+m1) − 1 sulla mediana. Il classico accademico, esclude l\'ultimo '+
@@ -739,6 +813,6 @@ function render(){buildCatSel();
     state.tab==='cat'?viewCat():state.tab==='mappa'?viewMappa():viewIdee();
   window.scrollTo(0,0);}
 document.getElementById('infoBtn').onclick=openInfo;
-function closeOv(){document.getElementById('ov').classList.remove('on')}
+function closeOv(){document.getElementById('ov').classList.remove('on');ovCat=null;ovPrev=null;}
 document.getElementById('ov').onclick=e=>{if(e.target.id==='ov')closeOv()};
 buildTipoChips();buildMacroChips();buildCatSel();render();
