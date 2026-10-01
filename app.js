@@ -166,7 +166,7 @@ function viewRank(){const list=withData(pool()).sort(ordina);
   let h='<div class="sec">Classifica per rendimento '+mLabel()+' · '+list.length+' strumenti</div>';
   if(!levaOn()&&N_LEVA)h+='<div class="note" style="margin:0 4px 8px">Esclusi '+N_LEVA+' strumenti a '+
     'leva e inversi: moltiplicano l\'indice invece di batterlo, quindi in classifica stanno sempre '+
-    'in cima o in fondo. Il chip <b>⚡</b> in alto li rimette dentro.</div>';
+    'in cima o in fondo. Il chip <b>⚡</b> nei filtri li rimette dentro.</div>';
   h+=list.slice(0,300).map((f,i)=>rowCard(f,i+1,i<3?'t':'')).join('');
   if(list.length>300)h+='<div class="empty">Mostrati i primi 300. Affina con filtri o ricerca.</div>';
   return h;}
@@ -199,12 +199,7 @@ function viewCat(){let keys=catPool();
   else if(state.catSort==='trend')keys.sort(perNum('trend'));
   else keys.sort((a,b)=>sg*a.nome.localeCompare(b.nome,'it'));
 
-  const freccia=k=>state.catSort===k&&inv?' ▲':' ▼';
-  const bt=(k,lbl)=>'<div class="sc'+(state.catSort===k?' on':'')+'" role="button" tabindex="0" '+
-    'title="Tocca di nuovo per invertire l\'ordine" onclick="setSort(\''+k+'\')">'+lbl+'</div>';
-  let h='<div class="sortrow">'+bt('score','Score'+freccia('score'))+bt('trend','Trend 6m'+freccia('trend'))+
-    bt('az',state.catSort==='az'&&inv?'Z-A':'A-Z')+'</div>';
-  h+='<div class="sec">'+keys.length+' categorie · score di allocazione'+
+  let h='<div class="sec">'+keys.length+' categorie · score di allocazione'+
     (inv&&state.catSort!=='az'?' · dal più basso':'')+'</div>';
 
   keys.forEach(c=>{const st=stato(c),ng=gruppiCat(membriCat(c.nome)).gr.length;
@@ -335,6 +330,12 @@ function tdRow(f,rank,r,mx){const td=r[1],w=Math.min(50,Math.abs(td)/(mx||0.1)*5
     '<span class="tv '+clsTD(td)+'">'+fmtTD(td)+'<small>±'+r[2].toFixed(2)+'</small></span>'+
     '<span class="ter">'+(f[I.ter]===null?'—':num(f[I.ter],2)+'%')+'</span></div>';}
 function kvBox(k,v){return '<div class="kv"><div class="k">'+k+'</div><div class="v sm">'+v+'</div></div>';}
+/* Bottoni di ordinamento: stanno nella testata della vista (layout v3), non nell'elenco. */
+function sortRow(){const inv=state.catInv,freccia=k=>state.catSort===k&&inv?' ▲':' ▼';
+  const bt=(k,lbl)=>'<button type="button" class="sc'+(state.catSort===k?' on':'')+'" '+
+    'title="Tocca di nuovo per invertire l\'ordine" onclick="setSort(\''+k+'\')">'+lbl+'</button>';
+  return '<div class="sortrow"><span class="vk">Ordina</span>'+bt('score','Score'+freccia('score'))+
+    bt('trend','Trend 6m'+freccia('trend'))+bt('az',state.catSort==='az'&&inv?'Z-A':'A-Z')+'</div>';}
 function setSort(s){if(state.catSort===s)state.catInv=!state.catInv;else{state.catSort=s;state.catInv=false;}render();}
 function miniRow(f){return '<div class="mini" onclick="event.stopPropagation();detail(\''+f[I.isin]+'\')">'+
   '<div class="mn">'+esc(f[I.name])+'</div>'+
@@ -761,6 +762,13 @@ function openInfo(){
       'restano calcolate su tutta la categoria.<br>'+
       '<b>Periodo</b> (1 settimana … 5 anni): ordina Classifica e Top / Flop. Categorie, Mappa e Idee '+
       'lavorano sempre sul trend a 6 mesi, quindi lì i chip del periodo non compaiono.<br>'+
+      '<b>Dove stanno</b>: su PC nella colonna di sinistra, sotto le viste; su telefono chiusi sotto la riga '+
+      '<b>Filtri</b>, che riassume quelli attivi (macro · tipo · leva · categoria · ricerca): <b>Modifica</b> li '+
+      'apre, <b>Chiudi</b> li richiude. <b>Azzera</b> li riporta tutti al valore iniziale.<br>'+
+      '<b>Le viste</b> sono in due gruppi colorati, come le due domande: <b>blu, Quale ETF</b> (Classifica e '+
+      'Top / Flop, sullo strumento) e <b>giallo, Dove posizionarsi</b> (Categorie, Mappa e Idee, sulla '+
+      'categoria). La testata colorata sopra ogni vista ripete il gruppo e contiene i comandi che valgono '+
+      'solo lì: il periodo in Classifica e Top / Flop, l\'ordine in Categorie.<br>'+
       '<b>Ordine in Categorie</b> (Score, Trend 6m, A-Z): un secondo tocco sullo stesso bottone '+
       'inverte l\'ordine, e la freccia passa da ▼ (dal più alto) a ▲ (dal più basso). Con Score ▲ '+
       'in cima trovi le categorie più deboli della loro macro. Quelle senza score restano sempre '+
@@ -773,7 +781,7 @@ function openInfo(){
       '<b>Leva e inversi</b>: esclusi dalle classifiche <i>per impostazione predefinita</i>. Un 2x o '+
       'un 3x non batte l\'indice, lo moltiplica — e con il ribilanciamento giornaliero perde valore '+
       'nei mercati laterali. In una classifica per rendimento occuperebbe le prime posizioni per '+
-      'costruzione, non per merito. Il chip <b>⚡</b> in alto li rimette dentro quando servono.<br>'+
+      'costruzione, non per merito. Il chip <b>⚡</b> nei filtri li rimette dentro quando servono.<br>'+
       '<b>Rating a stelle</b>: è relativo alla categoria e sui passivi premia di fatto il TER più '+
       'basso, che qui è già in chiaro.<br>'+
       '<b>Metodo di replica e politica di distribuzione</b>: lo screener non li espone su questo '+
@@ -806,8 +814,31 @@ function openInfo(){
    trend li' e' fisso a 6 mesi (metodologia §2): la riga si nasconde invece di restare
    accesa senza cambiare niente al tocco. */
 const USA_METRICA={rank:1,topflop:1};
+/* Layout v3 (01/10/2026): testata colorata della vista. Blu = strumento (Quale ETF),
+   giallo = categoria (Dove posizionarsi): le due domande separate anche a colpo d'occhio. */
+const GRUPPO_TAB={rank:'sel',topflop:'sel',cat:'all',mappa:'all',idee:'all'};
+const TITOLO_TAB={rank:'Classifica',topflop:'Top / Flop',cat:'Categorie',mappa:'Mappa',idee:'Idee'};
+function testataVista(){const vh=document.getElementById('vhead');if(!vh)return;
+  const g=GRUPPO_TAB[state.tab]||'sel';vh.className='vhead '+g;
+  document.getElementById('vlab').textContent=g==='sel'?'Quale ETF':'Dove posizionarsi';
+  document.getElementById('vtit').textContent=TITOLO_TAB[state.tab]||'';
+  document.getElementById('vtools').innerHTML=(state.tab==='cat'?sortRow():'')+
+    (g==='all'?'<div class="vnote">Il periodo qui non serve: le viste sulle categorie lavorano sempre sul trend a 6 mesi.</div>':'');}
+function aggiornaFiltri(){const s=document.getElementById('filtSum');if(!s)return;
+  const p=[state.macro||'tutte le macro',state.tipo||'tutti i tipi',levaOn()?'con leva':'senza leva'];
+  if(state.cat)p.push(state.cat);if(state.q)p.push('«'+state.q+'»');
+  s.textContent=p.join(' · ');}
+const filtBtn=document.getElementById('filtBtn');
+if(filtBtn)filtBtn.onclick=()=>{const o=document.querySelector('header').classList.toggle('fopen');
+  filtBtn.setAttribute('aria-expanded',o?'true':'false');
+  document.getElementById('filtMod').textContent=o?'Chiudi':'Modifica';};
+const azzBtn=document.getElementById('azzBtn');
+if(azzBtn)azzBtn.onclick=()=>{state.macro=null;state.cat=null;state.tipo=null;state.leva=false;state.q='';
+  const q=document.getElementById('q');if(q)q.value='';rebuild();};
 function render(){buildCatSel();
-  if(mc)mc.style.display=USA_METRICA[state.tab]?'':'none';
+  const mrow=document.getElementById('mrow')||mc;
+  if(mrow)mrow.style.display=USA_METRICA[state.tab]?'':'none';
+  testataVista();aggiornaFiltri();
   const v=document.getElementById('view');
   v.innerHTML=state.tab==='rank'?viewRank():state.tab==='topflop'?viewTopFlop():
     state.tab==='cat'?viewCat():state.tab==='mappa'?viewMappa():viewIdee();
