@@ -13,6 +13,8 @@
 
 const fs = require('fs');
 const path = require('path');
+// gruppo-indice ed efficienza di replica (tracking difference): vedi api/_gruppi.js
+const { calcolaRepliche } = require('./_gruppi.js');
 
 /* Fine delle serie storiche di data/series.json. Il file e' STATICO: raccolto il
    24/07/2026, ultimo punto mensile 30/06/2026. La data non e' scritta dentro il file:
@@ -325,6 +327,7 @@ function build(rows, series) {
     catNames: cats.map(c => c.nome),
     macroOrder: MACROS,
     series: ser,
+    repl: calcolaRepliche(funds, ser),
     meta: {
       date, dataChiusura: modaData,
       source: 'Morningstar Italia · via Vercel',
@@ -355,6 +358,7 @@ module.exports = async (req, res) => {
     try {
       const snap = upgradeSnapshot(loadJSON('snapshot.json'));
       snap.series = series;
+      snap.repl = calcolaRepliche(snap.funds, series);
       snap.meta.nSeries = Object.keys(series).length;
       snap.meta.serieFine = SERIE_FINE;
       snap.meta.source += ' · snapshot (refresh fallito: ' + String(err.message || err).slice(0, 80) + ')';
