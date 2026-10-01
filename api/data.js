@@ -252,6 +252,17 @@ function upgradeSnapshot(snap) {
   return snap;
 }
 
+// TER (01/10/2026): il piu' basso fra OngoingCostActual e ongoingCharge quando ci sono tutti e due; se ce n'e'
+// uno solo, quello (il ripiego su ongoingCharge alza la copertura di ~120 strumenti). Per un ETF il TER
+// dichiarato dall'emittente e' un tetto onnicomprensivo: un OngoingCostActual molto piu' alto e' un dato
+// vecchio o sbagliato (es. iShares Core Global Aggregate EUR Hedged IE00BDBRDM35: 1% invece di 0,10%).
+function terDi(r) {
+  const v = x => (x !== null && x !== undefined && isFinite(x)) ? +x : null;
+  const a = v(r.OngoingCostActual), b = v(r.ongoingCharge);
+  if (a !== null && b !== null) return r2(Math.min(a, b));
+  return a !== null ? r2(a) : (b !== null ? r2(b) : null);
+}
+
 function build(rows, series) {
   const seen = new Set();
   const funds = [];
@@ -270,10 +281,7 @@ function build(rows, series) {
     const cat = r.categoryName ? String(r.categoryName).trim() : null;
     const m3 = r2(r.GBRReturnM3), m6 = r2(r.GBRReturnM6);
     const mom = (m3 !== null && m6 !== null) ? r2((m3 + m6) / 2) : (m3 !== null ? m3 : m6);
-    // TER: OngoingCostActual con ripiego su ongoingCharge. Alza la copertura di ~120 strumenti.
-    const ter = (r.OngoingCostActual !== null && r.OngoingCostActual !== undefined)
-      ? r2(r.OngoingCostActual)
-      : ((r.ongoingCharge !== null && r.ongoingCharge !== undefined) ? r2(r.ongoingCharge) : null);
+    const ter = terDi(r);
     funds.push([
       isin,                       // 0
       r.Name ? String(r.Name).trim() : isin, // 1
@@ -372,6 +380,7 @@ module.exports = async (req, res) => {
 
 // esportato per i test locali
 module.exports.build = build;
+module.exports.terDi = terDi;
 module.exports.computeCats = computeCats;
 module.exports.upgradeSnapshot = upgradeSnapshot;
 module.exports.macroOf = macroOf;

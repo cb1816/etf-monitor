@@ -123,6 +123,10 @@ M36 1.730 · M60 1.364 · `FundTNAV` 2.429 · `InceptionDate` 2.499 · `ticker` 
 
 **TER**: `OngoingCostActual` (2.280) **con ripiego su `ongoingCharge`** → **2.397**. 117 strumenti
 in più, gratis. In produzione restano 102 strumenti senza TER.
+Dal 01/10/2026, quando ci sono **tutti e due vale il più basso**: per un ETF il TER dichiarato è un
+tetto onnicomprensivo, e un `OngoingCostActual` più alto è un dato vecchio o sbagliato (iShares Core
+Global Aggregate EUR Hedged, IE00BDBRDM35: 1% invece di 0,10%; iShares Core € Corp Bond Acc,
+IE00BF11F565: 0,20% invece di 0,09%).
 
 **Campi che NON esistono su questo universo**, verificati assenti e non ipotizzati: metodo di
 replica, politica di distribuzione (acc/dist), nome dell'indice replicato, flag hedged, struttura

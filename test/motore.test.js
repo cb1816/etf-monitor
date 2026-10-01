@@ -123,5 +123,13 @@ eq('fonte marcata come convertita', /schema 1 convertito/.test(up.meta.source), 
 eq('uno snapshot già in schema 2 non si ritocca',
    P.upgradeSnapshot({ funds: [], meta: { schema: 2, source: 'x' } }).meta.source, 'x');
 
+// TER (01/10/2026): il piu' basso dei due campi Morningstar; uno solo se manca l'altro
+eq('TER: il piu basso dei due', P.terDi({ OngoingCostActual: 1, ongoingCharge: 0.1 }), 0.1);
+eq('TER: OngoingCostActual se piu basso', P.terDi({ OngoingCostActual: 0.07, ongoingCharge: 0.12 }), 0.07);
+eq('TER: solo ongoingCharge', P.terDi({ ongoingCharge: 0.2 }), 0.2);
+eq('TER: solo OngoingCostActual', P.terDi({ OngoingCostActual: 0.15, ongoingCharge: null }), 0.15);
+eq('TER: nessuno', P.terDi({}), null);
+
 console.log(ok + ' test superati, ' + ko + ' falliti');
 process.exit(ko ? 1 : 0);
+
