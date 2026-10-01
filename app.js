@@ -769,6 +769,8 @@ function openInfo(){
       'Top / Flop, sullo strumento) e <b>giallo, Dove posizionarsi</b> (Categorie, Mappa e Idee, sulla '+
       'categoria). La testata colorata sopra ogni vista ripete il gruppo e contiene i comandi che valgono '+
       'solo lì: il periodo in Classifica e Top / Flop, l\'ordine in Categorie.<br>'+
+      '<b>Barra della suite</b>: My Way · Portafogli · Fondi · ETF · Clienti, uguale in tutte le app. <b>Clienti</b> '+
+      'apre il CRM, che gira solo sul Mac: i dati dei clienti non passano da qui.<br>'+
       '<b>Ordine in Categorie</b> (Score, Trend 6m, A-Z): un secondo tocco sullo stesso bottone '+
       'inverte l\'ordine, e la freccia passa da ▼ (dal più alto) a ▲ (dal più basso). Con Score ▲ '+
       'in cima trovi le categorie più deboli della loro macro. Quelle senza score restano sempre '+
