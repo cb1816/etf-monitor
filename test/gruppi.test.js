@@ -28,6 +28,11 @@ eq('ex China', k('Xtrackers MSCI Em Mkts ex China ETF 1C EUR', 'Azionari Paesi E
 eq('China All Shares', k('Invesco MSCI China All Shares Cnct ETF EUR', 'Azionari Cina'), 'MSCI China + All Shares');
 eq('Stoxx 600 settoriale', k('Amundi STOXX Europe 600 Indstr ETF Acc EUR', 'Azionari Settore Beni Industriali'), 'Stoxx Europe 600 + Sett. Industriali');
 eq('Stoxx 600 assicurazioni', k('Amundi STOXX Europe 600 Ins ETF Acc EUR', 'Azionari Settore Servizi Finanziari'), 'Stoxx Europe 600 + Sett. Finanziari');
+/* "Equal" contiene "qual": gli Equal Weight non sono Quality (02/10/2026) */
+eq('Equal Weight non Quality', k('Invesco S&P 500 Equal Weight ETF Acc EUR', 'Azionari USA Large Cap Blend'), 'S&P 500 + Equal Weight');
+eq('Equal Weight compresso', k('Invesco EURO STOXX50EqualWeightETFEURAcc EUR', 'Azionari Area Euro Large Cap'), 'Euro Stoxx 50 + Equal Weight');
+eq('Quality resta Quality', k('Xtrackers MSCI World Quality ETF 1C EUR', 'Azionari Internazionali Large Cap Blend'), 'MSCI World + Quality');
+eq('Quality abbreviato', k('UBS Factor MSCI USA Qul Scrn ETF USD dis EUR', 'Azionari USA Large Cap Blend'), null);
 eq('green bond compresso', k('Invesco EUR Govt & RelatedGrnBdWtdETFDis EUR', 'Obbligazionari Governativi EUR'), null);
 eq('Highest Rated Macro-Weighted compresso', k('Amundi Euro Hg Rt MW Govt Bond 3-5 ETF A EUR', 'Obbligazionari Governativi EUR'), 'Govt EUR 3-5 + Rating');
 eq('scadenza in mesi', k('onemarkets MSCI Euro Govt Bd1M-1YETF€Acc', 'Obbligazionari Governativi Breve Termine EUR'), 'Govt EUR 0-1');
