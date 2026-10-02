@@ -358,7 +358,7 @@ body.hascmp .wrap{padding-bottom:110px}
       }
     };}
   }
-  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=20';
+  function run(d){window.DATA=d;var s=document.createElement('script');s.src='app.js?v=21';
     s.onload=function(){try{head(d)}catch(e){}};document.body.appendChild(s);}
   fetch('/api/data').then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})
     .then(run)
