@@ -197,6 +197,54 @@ details.altri[open] .chev{transform:rotate(180deg)}
 details.altri[open]{padding-bottom:8px}
 .gbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px}
 .gbox .gl{font-size:11.5px;color:var(--mut);line-height:1.55}.gbox .gl a{color:inherit}
+/* Confronto fino a 5 strumenti (02/10/2026), stessa meccanica di OICR Monitor */
+.cmpbtn{display:inline-block;margin:0 0 6px;font-size:12.5px;font-weight:700;color:var(--accent);background:var(--chip);border:1px solid var(--accent);border-radius:999px;padding:8px 14px;cursor:pointer;font-family:inherit}
+.cmpbtn.on{background:var(--accent);color:#04101f}
+#cmpBar{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom));z-index:31;padding:0 10px 6px;pointer-events:none}
+.cmpin{pointer-events:auto;max-width:760px;margin:0 auto;display:flex;align-items:center;gap:8px;background:#16223a;border:1px solid var(--accent);border-radius:14px;padding:6px 8px 6px 12px;box-shadow:0 6px 20px rgba(0,0,0,.45)}
+.cmpdots{flex:1;display:flex;align-items:center;gap:5px;min-width:0}
+.cmpdot{width:12px;height:12px;border-radius:50%;flex:0 0 auto}
+.cmpn{font-size:11.5px;color:var(--mut);margin-left:4px}
+.cmpclr{background:none;border:none;color:var(--mut);font-size:12px;font-weight:600;padding:10px 6px;cursor:pointer;font-family:inherit}
+.cmpgo{background:var(--accent);color:#04101f;border:none;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.cmpgo:disabled{background:var(--chip);color:var(--mut);cursor:default}
+body.hascmp .wrap{padding-bottom:150px}
+body.hascmp>a[href*="oicr-monitor"]{bottom:calc(132px + env(safe-area-inset-bottom)) !important}
+.cmpban{border-radius:12px;padding:10px 12px;margin:2px 0 10px}
+.cmpban.diff{background:rgba(245,182,66,.08);border:1px solid rgba(245,182,66,.35)}
+.cmpban.same{background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.35)}
+.cbk{font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;margin-bottom:3px}
+.cmpban.diff .cbk{color:var(--warn)}.cmpban.same .cbk{color:var(--pos)}
+.cbk b{font-size:13px;letter-spacing:0;text-transform:none;color:var(--txt);margin:0 4px}
+.cbt{font-size:13px;line-height:1.45}.cbt b{color:#fff}
+.cbs{font-size:11.5px;color:var(--mut);line-height:1.45;margin-top:4px}.cbs b{color:var(--txt)}
+.cmpchart svg{height:auto}
+.cmpleg{display:flex;flex-direction:column;gap:3px;margin:8px 2px 0;font-size:12px}
+.cmpleg span{display:flex;align-items:center;gap:6px;min-width:0}
+.cmpleg i{flex:0 0 14px;height:3px;border-radius:2px}
+.cmpleg b{margin-left:auto;padding-left:8px}
+.cmpwrap{overflow-x:auto;overscroll-behavior-x:contain;margin:0 -4px;padding:0 4px}
+.cmptab{border-collapse:collapse;width:100%;font-size:12px;min-width:340px}
+.cmptab th,.cmptab td{padding:5px 6px;text-align:right;border-bottom:1px solid rgba(255,255,255,.05);white-space:nowrap}
+.cmptab th{vertical-align:top;font-size:11px;font-weight:700;color:var(--txt);white-space:normal;min-width:74px;max-width:120px;line-height:1.25}
+.cmptab th i{display:block;height:4px;border-radius:2px;margin-bottom:4px}
+.cmptab th span{cursor:pointer;text-decoration:underline dotted var(--mut)}
+.cmprm{display:block;margin:4px 0 0 auto;background:none;border:1px solid var(--line);color:var(--mut);border-radius:6px;font-size:10px;padding:2px 7px;cursor:pointer}
+.cmptab td:first-child,.cmptab th:first-child{text-align:left;color:var(--mut);position:sticky;left:0;background:var(--panel);z-index:1}
+.cmptab tr.cmpg td{color:var(--accent);font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding-top:10px;position:static}
+.cmptab td.best{font-weight:800;color:var(--pos);background:rgba(34,197,94,.10);border-radius:4px}
+.cmpcat{display:inline-block;white-space:normal;max-width:120px;font-size:10.5px;color:var(--mut);text-align:right}
+.cmpmut{color:var(--mut);font-size:10.5px}
+.cmpbest{text-transform:none;letter-spacing:0;color:var(--pos);font-weight:600;margin-left:6px}
+.cmpcorr td{text-align:center}.cmpcorr td:first-child{max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.cdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+.cmpcorr td.c4,.cl.c4{background:rgba(244,83,107,.25)}.cmpcorr td.c3,.cl.c3{background:rgba(245,182,66,.20)}
+.cmpcorr td.c2,.cl.c2{background:rgba(79,156,255,.16)}.cmpcorr td.c1,.cl.c1{background:rgba(34,197,94,.18)}
+.cl{display:inline-block;border-radius:4px;padding:0 5px;margin:2px 2px 0 0;color:var(--txt);white-space:nowrap}
+details.cmpdet{margin-top:10px}details.cmpdet[open]{padding-bottom:10px}
+#sheet .cmpban a,#sheet .note a{color:var(--accent)}
+/* con un foglio aperto il collegamento flottante a Fondi coprirebbe il contenuto */
+.ov.on~a[href*="oicr-monitor"]{display:none}
 /* Layout PC (01/10/2026): solo schermi larghi con mouse. Telefoni e tablet touch restano identici. */
 @media (min-width:1024px) and (hover:hover) and (pointer:fine){
 :root{--side:300px;--maxw:1240px}
@@ -244,6 +292,11 @@ body>a[href*="oicr-monitor"]{display:none}
 .alloc{display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:center}
 .alloc .m4{grid-template-columns:repeat(4,1fr);margin-top:0}
 .tdr:not(.tdh):hover,details.altri summary:hover{background:rgba(255,255,255,.03)}
+#cmpBar{left:var(--side);bottom:16px}
+body.hascmp .wrap{padding-bottom:110px}
+.cmptop{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:20px;align-items:start}
+.cmptop>:only-child{grid-column:1/-1}
+.cmpbtn:hover{background:var(--panel2)}.cmpbtn.on:hover{background:var(--accent)}
 }
 </style>
 </head>
