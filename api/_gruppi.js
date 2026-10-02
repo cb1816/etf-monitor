@@ -130,7 +130,7 @@ const VAR = [
   ['Equal Weight', /equal\s*w|eql\s*w|\bew\b|eq\s*wt|eq\s*wgt/],
   ['Min Vol', /min(i)?\s*vol|low\s*vol/],
   ['Min TE', /min\s*te(?![a-z]{2,}\b)|minte/],
-  ['Quality', /qual|qul/],
+  ['Quality', /(?<!e)qual|qul/],      // non dentro "Equal" (02/10/2026)
   ['Momentum', /momentum|\bmom\b/],
   ['Value', /value|\bval\b|fdml|fundamental|rafi/],
   ['Dividendi', /div(idend)?|hi\s*div|high\s*div|aristocrat|arist|yield|yld|income|\binc(ome)?\s*$/],
