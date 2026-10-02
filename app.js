@@ -250,7 +250,7 @@ function legendaTD(){return 'Barra verde a destra = rende più dei gemelli, ross
   '. ± = margine della stima: differenze più piccole sono di fatto un pareggio. Il numero a sinistra è la posizione nel gruppo.';}
 let ovCat=null,ovPrev=null;
 function showSheet(html,wide){const sh=document.getElementById('sheet');sh.innerHTML=html;
-  sh.classList.toggle('wide',!!wide);sh.scrollTop=0;document.getElementById('ov').classList.add('on');}
+  sh.classList.toggle('wide',!!wide);document.getElementById('ov').classList.add('on');sh.scrollTop=0;}
 function allocBox(c,st){
   const col=c.score===null?'var(--mut)':(c.score>=50?'var(--pos)':(c.score>=40?'var(--warn)':'var(--neg)'));
   const m=(k,v)=>'<div><div class="k">'+k+'</div><div class="v">'+v+'</div></div>';
@@ -500,7 +500,7 @@ function openCoppie(){
       'decimo l\'anno di differenza di costo finisce dentro il numero.</div>'+
     '<div class="note">Strumento informativo, non consulenza. Le performance passate non sono indicative '+
       'di quelle future.</div>';
-  document.getElementById('ov').classList.add('on');
+  document.getElementById('ov').classList.add('on');document.getElementById('sheet').scrollTop=0;
 }
 
 /* ================= IDEE ================= */
@@ -1019,7 +1019,7 @@ function openInfo(){
       'combinato con rischio, costo e obiettivo del cliente. Strumento informativo, non consulenza '+
       'né sollecitazione all\'investimento. Le performance passate non sono indicative di quelle future.</div>';
   document.getElementById('sheet').innerHTML=s;
-  document.getElementById('ov').classList.add('on');}
+  document.getElementById('ov').classList.add('on');document.getElementById('sheet').scrollTop=0;}
 
 /* ---------- avvio ---------- */
 /* I chip del periodo governano solo le viste sullo STRUMENTO (Classifica, Top/Flop),
