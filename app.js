@@ -600,10 +600,11 @@ function detail(isin){const f=F.find(x=>x[I.isin]===isin);if(!f)return;
   const p=v=>'<span class="'+cls(v)+'">'+fmt(v)+'</span>';
   let b='<button class="closex" onclick="closeOv()">✕</button>'+
     (ovCat?'<button class="back" onclick="indietro()">← '+(ovPrev&&ovPrev.t==='gr'
-      ?'Indice '+esc(nomeGruppo(REPL.g[ovPrev.gi])):esc(ovCat))+'</button>':'')+
+      ?'Indice '+esc(nomeGruppo(REPL.g[ovPrev.gi])):esc(ovCat))+'</button>'
+      :(ovPrev&&ovPrev.t==='cmp'?'<button class="back" onclick="openCompare()">← Confronto</button>':''))+
     '<h2>'+esc(f[I.name])+'</h2>'+
     '<div class="mc"><span class="pill">'+esc(f[I.isin])+'</span>'+
-      (f[I.tick]?'<span class="pill">'+esc(f[I.tick])+'</span>':'')+esc(f[I.cat]||'categoria n/d')+'</div>';
+      (f[I.tick]?'<span class="pill">'+esc(f[I.tick])+'</span>':'')+esc(f[I.cat]||'categoria n/d')+'</div>'+cmpBtn(f[I.isin]);
   if(f[I.ccy])b+='<div class="note" style="color:var(--warn)">Attenzione: performance restituite in '+
     esc(f[I.ccy])+', non in euro. Il confronto dentro la categoria non è omogeneo.</div>';
   if(f[I.stale]===1)b+='<div class="note">Prezzo di chiusura più vecchio della data di riferimento: '+
@@ -676,6 +677,197 @@ function sezioneReplica(f){const r=replOf(f[I.isin]);
     ' Il TER non dice tutto: pesano anche ritenute sui dividendi, prestito titoli e struttura (fisica o swap).</div>';
   return h+lista+'<div class="note">Scarto dalla mediana degli ETF sullo stesso indice, non dall\'indice: per '+
     'confrontarli fra loro è equivalente. Serie mensili'+(SFIN?' fino al '+esc(SFIN):'')+'.</div>';}
+
+/* ================= CONFRONTO FINO A 5 STRUMENTI (02/10/2026) =================
+   Stessa meccanica di OICR Monitor ("+ Confronta" nella scheda, barra in basso, foglio).
+   Differenza di sostanza: fra ETF conta SE l'indice e' lo stesso.
+   - Tutti nello stesso gruppo-indice verificato: rendono uguale per costruzione, quindi
+     prima la tracking difference, il grafico resta chiuso (lo scarto a fine periodo e'
+     soprattutto rumore di date e cambi delle serie) e la correlazione non si mostra.
+   - Altrimenti: si confrontano esposizioni, non strumenti. Grafico, tabella, correlazione.
+   Il grafico usa solo le serie mensili reali (data/series.json): niente linee stimate. */
+const CMPMAX=5,CMPCOL=['#4f9cff','#ff7a45','#c084fc','#2dd4bf','#facc15'];
+let CMP=[],CMPP=36;
+try{const s=JSON.parse(localStorage.getItem('etfCmp')||'[]');if(Array.isArray(s))CMP=s.slice(0,CMPMAX);}catch(e){}
+function cmpSave(){try{localStorage.setItem('etfCmp',JSON.stringify(CMP));}catch(e){}}
+function cmpF(isin){return F.find(x=>x[I.isin]===isin);}
+function cmpAvviso(t){const d=document.createElement('div');d.className='toast';d.setAttribute('role','status');
+  d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),4000);}
+function cmpToggle(isin){const i=CMP.indexOf(isin);
+  if(i>=0)CMP.splice(i,1);
+  else{if(CMP.length>=CMPMAX){cmpAvviso('Puoi confrontare al massimo '+CMPMAX+' strumenti: togline uno dalla barra in basso.');return;}
+    CMP.push(isin);}
+  cmpSave();cmpBar();
+  const b=document.getElementById('cmpBtn');if(b&&b.dataset.isin===isin)b.outerHTML=cmpBtn(isin);}
+function cmpBtn(isin){const on=CMP.includes(isin);
+  return '<button type="button" id="cmpBtn" data-isin="'+isin+'" class="cmpbtn'+(on?' on':'')+'" onclick="cmpToggle(\''+isin+'\')">'+
+    (on?'✓ Nel confronto':'+ Confronta')+'</button>';}
+function cmpCorto(n){n=String(n||'').replace(/\b(UCITS|ETF|ETC|ETP|EUR|USD|Acc|Dist|Dis)\b/gi,'').replace(/\s+/g,' ').trim();
+  return n.length>28?n.slice(0,27)+'…':n;}
+function cmpBar(){let bar=document.getElementById('cmpBar');
+  if(!bar){bar=document.createElement('div');bar.id='cmpBar';document.body.appendChild(bar);}
+  CMP=CMP.filter(cmpF);
+  document.body.classList.toggle('hascmp',CMP.length>0);
+  if(!CMP.length){bar.innerHTML='';return;}
+  bar.innerHTML='<div class="cmpin"><div class="cmpdots">'+CMP.map((s,i)=>'<span class="cmpdot" style="background:'+CMPCOL[i]+
+      '" title="'+esc(cmpF(s)[I.name])+'"></span>').join('')+'<span class="cmpn">'+CMP.length+'/'+CMPMAX+'</span></div>'+
+    '<button type="button" class="cmpclr" onclick="cmpSvuota()">Svuota</button>'+
+    '<button type="button" class="cmpgo" onclick="openCompare()"'+(CMP.length<2?' disabled':'')+'>'+
+      (CMP.length<2?'Scegline almeno 2':'Confronta ('+CMP.length+')')+'</button></div>';}
+function cmpSvuota(){CMP=[];cmpSave();cmpBar();}
+function cmpTogli(isin){CMP=CMP.filter(x=>x!==isin);cmpSave();cmpBar();if(CMP.length>=2)openCompare();else closeOv();}
+function cmpPeriodo(p){CMPP=p;openCompare();}
+/* apre il gruppo-indice di uno strumento passando dalla sua categoria (openGruppo lavora li') */
+function cmpGruppo(isin){const f=cmpF(isin),r=f&&replOf(isin);if(!r)return;ovCat=f[I.cat];openGruppo(r.gi);}
+
+/* serie cumulata in % -> valori indice; etichetta del mese a "back" mesi dalla fine serie */
+function cmpSer(isin){const v=serieDi(isin);return v&&v.length>=7?v.map(x=>1+x/100):null;}
+const CMPMESI=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+function cmpMese(back){const m=/(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(SFIN||'');
+  if(!m)return back?back+' mesi fa':'fine';
+  let y=+m[3],mm=+m[2]-1-back;while(mm<0){mm+=12;y--;}return CMPMESI[mm]+' '+String(y).slice(2);}
+function cmpCorr(a,b){const n=a.length;if(n<12)return null;
+  const ma=a.reduce((s,x)=>s+x,0)/n,mb=b.reduce((s,x)=>s+x,0)/n;let ab=0,aa=0,bb=0;
+  for(let i=0;i<n;i++){const da=a[i]-ma,db=b[i]-mb;ab+=da*db;aa+=da*da;bb+=db*db;}
+  return aa&&bb?ab/Math.sqrt(aa*bb):null;}
+function cmpPC(){return window.matchMedia&&matchMedia('(min-width:1024px) and (hover:hover) and (pointer:fine)').matches;}
+
+function cmpGrafico(fs){
+  const con=fs.map((f,i)=>({f,i,s:cmpSer(f[I.isin])})).filter(o=>o.s),senza=fs.filter(f=>!cmpSer(f[I.isin]));
+  if(!con.length)return {html:'<div class="note">Nessuno di questi strumenti ha lo storico mensile: il grafico non si può disegnare.</div>',n:0,linee:[],fine:{}};
+  const disp=Math.min(...con.map(o=>o.s.length-1)),N=Math.min(CMPP,disp);
+  const linee=con.map(o=>{const s=o.s.slice(o.s.length-1-N),b=s[0];
+    return {i:o.i,f:o.f,v:s.map(x=>(x/b-1)*100),r:s.slice(1).map((x,k)=>x/s[k]-1)};});
+  const tutti=linee.flatMap(l=>l.v);let mn=Math.min(0,...tutti),mx=Math.max(0,...tutti);if(mx-mn<2){mx+=1;mn-=1;}
+  const W=cmpPC()?560:Math.round(Math.max(300,Math.min(700,(window.innerWidth||360)-66))),H=W>500?230:190,L=36,R=8,T=8,B=20;
+  const X=k=>L+(N?k/N:0)*(W-L-R),Y=v=>T+(1-(v-mn)/(mx-mn))*(H-T-B);
+  const passo=(mx-mn)>160?40:(mx-mn)>80?20:(mx-mn)>40?10:(mx-mn)>15?5:2;
+  let g='';for(let t=Math.ceil(mn/passo)*passo;t<=mx;t+=passo){const y=Y(t).toFixed(1);
+    g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="'+(t===0?'#3a4c70':'#1f2b44')+'" stroke-width="1"'+(t===0?'':' stroke-dasharray="2 3"')+'/>'+
+      '<text x="'+(L-4)+'" y="'+(+y+3).toFixed(1)+'" text-anchor="end" font-size="10" fill="#93a1b8">'+(t>0?'+':'')+t+'%</text>';}
+  const xt=[0,Math.round(N/2),N].filter((v,i,a)=>a.indexOf(v)===i).map(k=>'<text x="'+X(k).toFixed(1)+'" y="'+(H-5)+
+    '" text-anchor="'+(k===0?'start':k===N?'end':'middle')+'" font-size="10" fill="#93a1b8">'+cmpMese(N-k)+'</text>').join('');
+  const pl=l=>'<polyline points="'+l.v.map((y,k)=>X(k).toFixed(1)+','+Y(y).toFixed(1)).join(' ')+'" fill="none" stroke="'+CMPCOL[l.i]+
+    '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  const svg='<div class="chartbox cmpchart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Performance cumulata">'+g+linee.map(pl).join('')+xt+'</svg></div>';
+  const fine={};linee.forEach(l=>{fine[l.f[I.isin]]=l.v[N];});
+  const leg='<div class="cmpleg">'+linee.map(l=>'<span><i style="background:'+CMPCOL[l.i]+'"></i>'+esc(cmpCorto(l.f[I.name]))+
+    ' <b class="'+cls(l.v[N])+'">'+fmt(l.v[N])+'</b></span>').join('')+'</div>';
+  const nt=[];
+  if(N<CMPP)nt.push('Lo strumento più giovane ha <b>'+disp+' mesi</b> di storico: tutte le linee partono da 0 a <b>'+cmpMese(N)+'</b>, così il confronto è alla pari.');
+  if(senza.length)nt.push('Senza storico mensile, esclusi dal grafico e dalla correlazione: '+senza.map(f=>'<b>'+esc(cmpCorto(f[I.name]))+'</b>').join(', ')+'.');
+  return {html:svg+leg+(nt.length?'<div class="note">'+nt.join(' ')+'</div>':''),n:N,linee,fine};}
+
+/* Tabella fianco a fianco. Riga: [etichetta, valore, formato, verso del migliore (+1 alto, -1 basso, 0 nessuno)].
+   Il verde si accende solo dove il confronto ha senso: sui rendimenti NON se l'indice e' lo stesso
+   (le differenze sono rumore), sulla TD SOLO se l'indice e' lo stesso. */
+function cmpTabella(fs,fine,stesso){
+  const P=v=>v==null?'—':fmt(v),pc=v=>v==null?'—':num(v)+'%';
+  const rd=stesso?0:1;
+  const coperto=f=>{const r=replOf(f[I.isin]);return r?(/· hedged$/.test(r.g.k)?'coperto in EUR':'non coperto'):'—';};
+  const indice=f=>{const r=replOf(f[I.isin]);return r&&r.g.st==='ok'?nomeGruppo(r.g):'—';};
+  const td=f=>{const r=replOf(f[I.isin]);return r&&r.g.st==='ok'&&r.q===0?r.td:null;};
+  const tdTxt=f=>{const r=replOf(f[I.isin]);if(!r||r.g.st!=='ok')return '—';
+    if(r.q!==0)return '<span class="cmpmut">'+(r.q===2?'meno di 3 anni':'dati instabili')+'</span>';
+    return '<span class="'+clsTD(r.td)+'">'+fmtTD(r.td)+'</span> <span class="cmpmut">±'+r.se.toFixed(2)+'</span>';};
+  const posiz=f=>{const r=replOf(f[I.isin]);if(!r||r.g.st!=='ok'||r.q!==0)return '—';const g=gemelli(r.gi);return (g.indexOf(f)+1)+'° su '+g.length;};
+  const cat=f=>CBY[f[I.cat]];
+  const righe=[
+    ['g','Cosa replica'],
+    ['Indice',indice,v=>'<span class="cmpcat">'+esc(v)+'</span>',0],
+    ['Cambio',coperto,v=>v,0],
+    ['Categoria',f=>f[I.cat]||'—',v=>'<span class="cmpcat">'+esc(v)+'</span>',0],
+    ['g','Rendimenti'],
+    ['Nel grafico',f=>fine[f[I.isin]],P,rd],
+    ['1 mese',f=>f[I.m1],P,rd],['3 mesi',f=>f[I.m3],P,rd],['6 mesi',f=>f[I.m6],P,rd],['YTD',f=>f[I.ytd],P,rd],
+    ['1 anno',f=>f[I.r1],P,rd],['3 anni p.a.',f=>f[I.r3],P,rd],['5 anni p.a.',f=>f[I.r5],P,rd],
+    ['g','Rischio'],
+    ['Volatilità 3a',f=>f[I.sd],pc,stesso?0:-1],
+    ['Max drawdown 3a',f=>f[I.mdd],pc,stesso?0:1],
+    ['Rend./volat. 3a',f=>f[I.shp],v=>v==null?'—':num(v,2),stesso?0:1],
+    ['g','Costo e replica'],
+    ['TER',f=>f[I.ter],v=>v==null?'—':num(v,2)+'%',-1],
+    ['Quartile TER',f=>f[I.terQ],v=>v?'Q'+v:'—',0],
+    ['TD sui gemelli',td,null,stesso?1:0],
+    ['Posizione nel gruppo',posiz,v=>v,0],
+    ['Patrimonio',f=>f[I.aum],eur,0],
+    ['Dal',f=>f[I.anno],v=>v||'—',0],
+    ['g','Dove si posiziona'],
+    ['Score categoria',f=>{const c=cat(f);return c&&c.score!=null?c.score:null;},v=>v==null?'—':v.toFixed(0)+'/100',0],
+    ['Stato categoria',f=>{const s=stato(cat(f));return s?s.ico+' '+s.lbl:'—';},v=>'<span class="cmpcat">'+v+'</span>',0]
+  ];
+  let h='<div class="cmpwrap"><table class="cmptab"><thead><tr><th></th>'+fs.map((f,i)=>'<th><i style="background:'+CMPCOL[i]+'"></i>'+
+    '<span onclick="detail(\''+f[I.isin]+'\')">'+esc(cmpCorto(f[I.name]))+'</span>'+
+    '<button type="button" class="cmprm" onclick="cmpTogli(\''+f[I.isin]+'\')" aria-label="Togli dal confronto">✕</button></th>').join('')+'</tr></thead><tbody>';
+  righe.forEach(r=>{
+    if(r[0]==='g'){h+='<tr class="cmpg"><td colspan="'+(fs.length+1)+'">'+r[1]+'</td></tr>';return;}
+    const vals=fs.map(r[1]),nums=vals.filter(v=>typeof v==='number'&&isFinite(v));
+    const best=r[3]&&nums.length>1&&new Set(nums).size>1?(r[3]>0?Math.max(...nums):Math.min(...nums)):null;
+    h+='<tr><td>'+r[0]+'</td>'+vals.map((v,k)=>{const b=best!=null&&v===best;
+      const c=r[2]===P&&typeof v==='number'?cls(v):'';
+      const txt=r[0]==='TD sui gemelli'?tdTxt(fs[k]):r[2](v);
+      return '<td class="'+c+(b?' best':'')+'">'+txt+'</td>';}).join('')+'</tr>';});
+  return h+'</tbody></table></div>';}
+
+function cmpCorrHtml(ch){const L=ch.linee||[];if(L.length<2)return '';
+  if(ch.n<12)return '<div class="note">La correlazione richiede almeno un anno di storico in comune: qui ce ne sono '+ch.n+' mesi.</div>';
+  const C=v=>v==null?'':v>=0.8?'c4':v>=0.5?'c3':v>=0.2?'c2':'c1',fx=v=>v.toFixed(2);
+  const M=L.map(a=>L.map(b=>a===b?null:cmpCorr(a.r,b.r)));
+  let h='<div class="cmpwrap"><table class="cmptab cmpcorr"><thead><tr><th></th>'+L.map(l=>'<th><i style="background:'+CMPCOL[l.i]+'"></i></th>').join('')+'</tr></thead><tbody>';
+  L.forEach((a,x)=>{h+='<tr><td><i class="cdot" style="background:'+CMPCOL[a.i]+'"></i>'+esc(cmpCorto(a.f[I.name]))+'</td>'+
+    L.map((b,y)=>{if(x===y)return '<td class="zero">—</td>';const c=M[x][y];return '<td class="'+C(c)+'">'+(c==null?'—':fx(c))+'</td>';}).join('')+'</tr>';});
+  h+='</tbody></table></div>';
+  let hi=null,lo=null;for(let x=0;x<L.length;x++)for(let y=x+1;y<L.length;y++){const c=M[x][y];if(c==null)continue;
+    if(!hi||c>hi[0])hi=[c,x,y];if(!lo||c<lo[0])lo=[c,x,y];}
+  const nm=k=>'<b>'+esc(cmpCorto(L[k].f[I.name]))+'</b>';let s='';
+  if(hi&&hi[0]>=0.8)s+='Si muovono quasi insieme '+nm(hi[1])+' e '+nm(hi[2])+' ('+fx(hi[0])+'): tenerli entrambi diversifica poco. ';
+  if(lo&&lo!==hi&&lo[0]<0.5)s+='La coppia più indipendente è '+nm(lo[1])+' e '+nm(lo[2])+' ('+fx(lo[0])+'). ';
+  return h+'<div class="note">'+s+'Rendimenti mensili degli ultimi '+ch.n+' mesi. '+
+    '<span class="c4 cl">≥0.8 quasi uguali</span> <span class="c3 cl">0.5–0.8 simili</span> <span class="c2 cl">0.2–0.5 diversi</span> <span class="c1 cl">&lt;0.2 indipendenti</span></div>';}
+
+/* gruppi-indice verificati fra gli strumenti scelti: {gi: [f,...]} */
+function cmpGruppi(fs){const m={};fs.forEach(f=>{const r=replOf(f[I.isin]);if(r&&r.g.st==='ok')(m[r.gi]=m[r.gi]||[]).push(f);});return m;}
+
+function openCompare(){const fs=CMP.map(cmpF).filter(Boolean);
+  if(fs.length<2){cmpAvviso('Aggiungi almeno 2 strumenti al confronto dalla loro scheda.');return;}
+  ovCat=null;ovPrev={t:'cmp'};
+  const gm=cmpGruppi(fs),gis=Object.keys(gm),stesso=gis.length===1&&gm[gis[0]].length===fs.length;
+  const ch=cmpGrafico(fs),per=[[12,'1 anno'],[36,'3 anni'],[60,'5 anni']];
+  const chips='<div class="chips" style="margin-bottom:6px">'+per.map(p=>'<button type="button" class="chip'+(CMPP===p[0]?' on':'')+
+    '" onclick="cmpPeriodo('+p[0]+')">'+p[1]+'</button>').join('')+'</div>';
+  let b='<button class="closex" onclick="closeOv()">✕</button><h2>Confronto ETF</h2>'+
+    '<div class="mc">'+fs.length+' strumenti · tocca un nome per aprirne la scheda, ✕ per toglierlo</div>';
+  if(stesso){const gi=+gis[0],g=REPL.g[gi],mx=Math.max(0.1,...fs.map(f=>{const r=replOf(f[I.isin]);return r.q===0?Math.abs(r.td):0;}));
+    const conTD=fs.filter(f=>replOf(f[I.isin]).q===0).sort((a,b2)=>replOf(b2[I.isin]).td-replOf(a[I.isin]).td),senzaTD=fs.filter(f=>replOf(f[I.isin]).q!==0);
+    b+='<div class="cmpban same"><div class="cbk">Stesso indice <b>'+esc(nomeGruppo(g))+'</b> <span class="qbadge q1">verificato</span></div>'+
+      '<div class="cbt">Rendono quasi uguale per costruzione: qui conta <b>quanto replicano bene</b> l\'indice, poi il costo.</div></div>'+
+      '<div class="mlbl">Efficienza di replica</div>'+
+      (conTD.length?tdHead()+conTD.map(f=>tdRow(f,gemelli(gi).indexOf(f)+1,REPL.f[f[I.isin]],mx)).join(''):'')+
+      (senzaTD.length?'<div class="note">Senza tracking difference: '+senzaTD.map(f=>'<b>'+esc(cmpCorto(f[I.name]))+'</b> ('+
+        (replOf(f[I.isin]).q===2?'meno di 3 anni':'dati instabili')+')').join(', ')+'.</div>':'')+
+      '<div class="note">'+legendaTD()+' <a href="#" onclick="event.preventDefault();cmpGruppo(\''+fs[0][I.isin]+'\')">Tutti gli ETF su questo indice →</a></div>'+
+      '<div class="mlbl">Fianco a fianco</div>'+cmpTabella(fs,ch.fine,true)+
+      '<details class="altri cmpdet"><summary><span class="st"><b>Grafico della performance cumulata</b>'+
+        '<small>Chiuso apposta: sullo stesso indice lo scarto a fine periodo è soprattutto rumore delle serie mensili (date e cambi non allineati), che la tracking difference filtra.</small></span>'+
+        '<span class="chev" aria-hidden="true">⌄</span></summary>'+chips+ch.html+'</details>'+
+      '<div class="note">La correlazione non si mostra: sullo stesso indice vale 1 per costruzione.</div>';
+  }else{
+    const coppie=gis.filter(k=>gm[k].length>1);
+    const link=gis.map(k=>'<a href="#" onclick="event.preventDefault();cmpGruppo(\''+gm[k][0][I.isin]+'\')">'+esc(nomeGruppo(REPL.g[k]))+'</a>');
+    b+='<div class="cmpban diff"><div class="cbk">Indici diversi</div>'+
+      '<div class="cbt">Stai confrontando <b>esposizioni</b>, non strumenti: le differenze di rendimento vengono soprattutto dall\'indice, non dall\'ETF.</div>'+
+      coppie.map(k=>'<div class="cbs">'+gm[k].map(f=>'<b>'+esc(cmpCorto(f[I.name]))+'</b>').join(' e ')+' replicano lo stesso indice ('+
+        esc(nomeGruppo(REPL.g[k]))+'): fra loro conta la tracking difference, non il rendimento.</div>').join('')+
+      (link.length?'<div class="cbs">Per scegliere lo strumento su un indice, apri il suo gruppo: '+link.join(' · ')+'.</div>':'')+'</div>'+
+      '<div class="cmptop"><div><div class="mlbl">Performance cumulata</div>'+chips+ch.html+'</div>'+
+      (ch.linee.length>=2?'<div><div class="mlbl">Correlazione — si muovono insieme?</div>'+cmpCorrHtml(ch)+'</div>':'')+'</div>'+
+      '<div class="mlbl">Fianco a fianco <span class="cmpbest">in verde il migliore della riga</span></div>'+cmpTabella(fs,ch.fine,false);
+  }
+  b+='<div class="note">Grafico'+(stesso?'':' e correlazione')+' sullo storico mensile Morningstar'+(SFIN?' fino al <b>'+esc(SFIN)+'</b>':'')+
+    '; tabella ai prezzi'+(META.dataChiusura?' del '+esc(itDate(META.dataChiusura)):' dell\'ultimo aggiornamento')+', in EUR. '+
+    'Liquidità e spread denaro-lettera non disponibili. Come leggerlo: guida <b>i</b>, «Il confronto tra ETF». '+
+    'Informativa, non sollecitazione all\'investimento; le performance passate non sono indicative di quelle future.</div>';
+  showSheet(b,true);}
 
 /* ================= GUIDA ================= */
 function openInfo(){
@@ -752,6 +944,25 @@ function openInfo(){
       '<b>Grafico</b>: la serie mensile reale di Morningstar quando c\'è'+(SFIN?' (si ferma al '+esc(SFIN)+')':'')+
       '. Quando manca, una <b>stima</b> ricostruita da pochi punti (1 settimana, 1, 3 e 6 mesi, 1, 3 e '+
       '5 anni) uniti da segmenti: dà la direzione, non il percorso. La legenda dice quale delle due vedi.</div>'+
+    '<div class="ihead">Il confronto tra ETF</div>'+
+    '<div class="ip">Nella scheda di uno strumento tocca <b>+ Confronta</b>: compare una barra in basso. Scegli '+
+      '<b>da 2 a 5 strumenti</b>, anche di categorie diverse, e tocca <b>Confronta</b>. La scelta resta salvata su '+
+      'questo dispositivo finché non la svuoti.</div>'+
+    '<div class="ip"><b>Stesso indice</b>: se sono tutti nello stesso gruppo-indice verificato, rendono quasi uguale per '+
+      'costruzione. Il confronto mette prima la <b>tracking difference</b> e il costo; il grafico resta chiuso, perché a '+
+      'fine periodo lo scarto fra le linee è soprattutto rumore delle serie mensili (date e cambi non allineati), e la '+
+      'correlazione non compare (vale 1 per costruzione). Il verde segna la TD migliore, non il rendimento.<br>'+
+      '<b>Indici diversi</b>: stai confrontando <b>esposizioni</b>, non strumenti. Le differenze di rendimento vengono '+
+      'dall\'indice. Un avviso lo ricorda, segnala le coppie che invece replicano lo stesso indice e porta ai loro gruppi.</div>'+
+    '<div class="ip"><b>Grafico</b>: quanto ha reso ognuno dalla stessa data, su 1, 3 o 5 anni, con lo storico mensile '+
+      'Morningstar'+(SFIN?' (fermo al '+esc(SFIN)+')':'')+'. Se uno strumento è più giovane, tutte le linee partono da '+
+      'quando esistono tutti. Chi non ha storico resta in tabella ma non nel grafico: niente linee stimate.<br>'+
+      '<b>Tabella</b>: cosa replica (l\'<b>indice</b> si mostra solo per i gruppi verificati, la <b>copertura del '+
+      'cambio</b> è ricavata dal nome), rendimenti, rischio, costo e replica, e lo score della categoria. In verde il '+
+      'migliore della riga; per volatilità e TER vince il più basso. Il verde non compare dove il confronto non ha senso: '+
+      'la TD fra indici diversi, i rendimenti sullo stesso indice.<br>'+
+      '<b>Correlazione</b>: da −1 a +1 sui rendimenti mensili. Vicino a 1 si muovono insieme e in portafoglio sono quasi '+
+      'un doppione; vicino a 0 diversificano davvero.</div>'+
     '<div class="ihead">I filtri</div>'+
     '<div class="ip"><b>Macro</b>: 11 gruppi di categorie Morningstar (azionari, obbligazionari, materie '+
       'prime, leva e inversi, cripto…). La separazione è per <b>categoria</b>, non per struttura '+
@@ -848,4 +1059,4 @@ function render(){buildCatSel();
 document.getElementById('infoBtn').onclick=openInfo;
 function closeOv(){document.getElementById('ov').classList.remove('on');ovCat=null;ovPrev=null;}
 document.getElementById('ov').onclick=e=>{if(e.target.id==='ov')closeOv()};
-buildTipoChips();buildMacroChips();buildCatSel();render();
+buildTipoChips();buildMacroChips();buildCatSel();render();cmpBar();
