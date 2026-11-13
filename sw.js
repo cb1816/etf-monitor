@@ -2,7 +2,7 @@
    Online si vede sempre l'ultima versione (dati live da /api/data e app.js?v=N);
    la cache serve solo come rete di sicurezza offline. Mai cache-first: congelerebbe
    proprio quello che stiamo cercando di tenere aggiornato. */
-const CACHE = 'etf-monitor-v2';
+const CACHE = 'etf-monitor-v3';
 const ASSETS = ['./', './index.html', './manifest.webmanifest',
                 './apple-touch-icon.png', './icon-192.png', './icon-512.png'];
 
