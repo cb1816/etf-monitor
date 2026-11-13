@@ -342,8 +342,8 @@ function miniRow(f){return '<div class="mini" onclick="event.stopPropagation();d
   '<div style="flex:0 0 auto;font-size:12px;color:var(--mut)">'+num(f[I.ter],2)+'% · '+eur(f[I.aum])+'</div></div>';}
 
 /* ================= MAPPA ================= */
-const MC={'Azionari':'#4f9cff','Obbligazionari':'#22c55e','Convertibili':'#14b8a6',
-  'Monetari':'#38bdf8','Bilanciati':'#f5b642','Materie Prime (ETC)':'#f59e0b',
+const MC={'Azionari':'#a5f3fc','Obbligazionari':'#5eead4','Convertibili':'#14b8a6',
+  'Monetari':'#38bdf8','Bilanciati':'#f0c46b','Materie Prime (ETC)':'#f59e0b',
   'Immobiliare':'#a78bfa','Alternativi':'#fb7185','Leva e Inverse (ETP)':'#fb923c',
   'Cripto':'#e879f9','Altro':'#94a3b8'};
 function viewMappa(){const keys=catPool().filter(c=>c.trend!==null).slice()
@@ -555,7 +555,7 @@ function svgLine(vals,up,srcLabel,leftLabel,rightLabel){
   const X=i=>pad+(N<2?0:i/(N-1))*(W-2*pad);
   const Y=v=>pad+(1-(v-mn)/rng)*(H-2*pad);
   const pts=vals.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join(' ');
-  const col=up?'#22c55e':'#f4536b';const y100=Y(100);
+  const col=up?'#5eead4':'#ff7a5c';const y100=Y(100);
   const area=pts+' '+X(N-1).toFixed(1)+','+(H-pad)+' '+X(0).toFixed(1)+','+(H-pad);
   return '<div class="chartbox"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
     '<polygon points="'+area+'" fill="'+col+'" opacity="0.08"/>'+
@@ -585,7 +585,7 @@ function growthChart(f){
   const X=mo=>pad+(1-mo/maxMo)*(W-2*pad);
   const Y=v=>pad+(1-(v-mn)/rng)*(H-2*pad);
   const pts=P.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ');
-  const up=P[P.length-1][1]>=P[0][1];const col=up?'#22c55e':'#f4536b';
+  const up=P[P.length-1][1]>=P[0][1];const col=up?'#5eead4':'#ff7a5c';
   const marks=P.map(p=>'<circle cx="'+X(p[0]).toFixed(1)+'" cy="'+Y(p[1]).toFixed(1)+'" r="2.4" fill="'+col+'"/>').join('');
   return '<div class="chartbox"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
     '<line x1="'+pad+'" y1="'+Y(100).toFixed(1)+'" x2="'+(W-pad)+'" y2="'+Y(100).toFixed(1)+'" stroke="#2b3a57" stroke-width="1" stroke-dasharray="3 3"/>'+
@@ -686,7 +686,7 @@ function sezioneReplica(f){const r=replOf(f[I.isin]);
      soprattutto rumore di date e cambi delle serie) e la correlazione non si mostra.
    - Altrimenti: si confrontano esposizioni, non strumenti. Grafico, tabella, correlazione.
    Il grafico usa solo le serie mensili reali (data/series.json): niente linee stimate. */
-const CMPMAX=5,CMPCOL=['#4f9cff','#ff7a45','#c084fc','#2dd4bf','#facc15'];
+const CMPMAX=5,CMPCOL=['#a5f3fc','#e7c98a','#c084fc','#2dd4bf','#facc15'];
 let CMP=[],CMPP=36;
 try{const s=JSON.parse(localStorage.getItem('etfCmp')||'[]');if(Array.isArray(s))CMP=s.slice(0,CMPMAX);}catch(e){}
 function cmpSave(){try{localStorage.setItem('etfCmp',JSON.stringify(CMP));}catch(e){}}
@@ -744,9 +744,9 @@ function cmpGrafico(fs){
   const passo=(mx-mn)>160?40:(mx-mn)>80?20:(mx-mn)>40?10:(mx-mn)>15?5:2;
   let g='';for(let t=Math.ceil(mn/passo)*passo;t<=mx;t+=passo){const y=Y(t).toFixed(1);
     g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'" stroke="'+(t===0?'#3a4c70':'#1f2b44')+'" stroke-width="1"'+(t===0?'':' stroke-dasharray="2 3"')+'/>'+
-      '<text x="'+(L-4)+'" y="'+(+y+3).toFixed(1)+'" text-anchor="end" font-size="10" fill="#93a1b8">'+(t>0?'+':'')+t+'%</text>';}
+      '<text x="'+(L-4)+'" y="'+(+y+3).toFixed(1)+'" text-anchor="end" font-size="10" fill="#8ea3b5">'+(t>0?'+':'')+t+'%</text>';}
   const xt=[0,Math.round(N/2),N].filter((v,i,a)=>a.indexOf(v)===i).map(k=>'<text x="'+X(k).toFixed(1)+'" y="'+(H-5)+
-    '" text-anchor="'+(k===0?'start':k===N?'end':'middle')+'" font-size="10" fill="#93a1b8">'+cmpMese(N-k)+'</text>').join('');
+    '" text-anchor="'+(k===0?'start':k===N?'end':'middle')+'" font-size="10" fill="#8ea3b5">'+cmpMese(N-k)+'</text>').join('');
   const pl=l=>'<polyline points="'+l.v.map((y,k)=>X(k).toFixed(1)+','+Y(y).toFixed(1)).join(' ')+'" fill="none" stroke="'+CMPCOL[l.i]+
     '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
   const svg='<div class="chartbox cmpchart"><svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Performance cumulata">'+g+linee.map(pl).join('')+xt+'</svg></div>';
