@@ -555,7 +555,7 @@ function svgLine(vals,up,srcLabel,leftLabel,rightLabel){
   const X=i=>pad+(N<2?0:i/(N-1))*(W-2*pad);
   const Y=v=>pad+(1-(v-mn)/rng)*(H-2*pad);
   const pts=vals.map((v,i)=>X(i).toFixed(1)+','+Y(v).toFixed(1)).join(' ');
-  const col=up?'#5eead4':'#ff4d6d';const y100=Y(100);
+  const col=up?'#5eead4':'#e8365d';const y100=Y(100);
   const area=pts+' '+X(N-1).toFixed(1)+','+(H-pad)+' '+X(0).toFixed(1)+','+(H-pad);
   return '<div class="chartbox"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
     '<polygon points="'+area+'" fill="'+col+'" opacity="0.08"/>'+
@@ -585,7 +585,7 @@ function growthChart(f){
   const X=mo=>pad+(1-mo/maxMo)*(W-2*pad);
   const Y=v=>pad+(1-(v-mn)/rng)*(H-2*pad);
   const pts=P.map(p=>X(p[0]).toFixed(1)+','+Y(p[1]).toFixed(1)).join(' ');
-  const up=P[P.length-1][1]>=P[0][1];const col=up?'#5eead4':'#ff4d6d';
+  const up=P[P.length-1][1]>=P[0][1];const col=up?'#5eead4':'#e8365d';
   const marks=P.map(p=>'<circle cx="'+X(p[0]).toFixed(1)+'" cy="'+Y(p[1]).toFixed(1)+'" r="2.4" fill="'+col+'"/>').join('');
   return '<div class="chartbox"><svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
     '<line x1="'+pad+'" y1="'+Y(100).toFixed(1)+'" x2="'+(W-pad)+'" y2="'+Y(100).toFixed(1)+'" stroke="#2b3a57" stroke-width="1" stroke-dasharray="3 3"/>'+
