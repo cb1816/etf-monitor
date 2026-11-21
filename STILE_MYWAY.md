@@ -112,6 +112,10 @@ regola «nessuna rete» e test `w7`):
 - etichette tecniche: `"SF Mono", ui-monospace, Menlo, monospace`, 10–11 px, maiuscolo,
   spaziatura `.22em`, colore `--mut`.
 
+**In una fila di placche le cifre stanno sulla stessa linea**, anche se un'etichetta va su due righe: la
+fila è una griglia e ogni placca una sottogriglia (etichetta, cifra, nota), oppure l'etichetta ha l'altezza di
+due righe con il testo in basso.
+
 Le cifre importanti sono **grandi e leggere** (peso 300, `letter-spacing:-.02em`, cifre
 tabellari). Le cifre nelle tabelle restano a peso normale: leggere fra cento righe stanca.
 
@@ -122,6 +126,20 @@ tabellari). Le cifre nelle tabelle restano a peso normale: leggere fra cento rig
 - Secondario: solo bordo `--line`, testo `--txt`.
 - Etichette dei pulsanti in maiuscolo spaziato, carattere tecnico.
 - Voce attiva di un menu: sottolineata da un filo `--accent`, non riempita.
+
+**Dal 21/11/2026 (sera)**:
+- **«My Way» si scrive sempre coi colori del logo**: lettere corallo (`--marchio`), le Y blu (`--zaffiro`).
+  In HTML: `<span class="mw">M<i>Y</i> WA<i>Y</i></span>`.
+- **Il colore dice dove sei, l'oro dice cosa hai scelto.** I pulsanti a riposo sono neutri (scritta chiara,
+  bordo sottile); **sotto il cursore diventano oro**; **la scelta attiva è oro pieno** con la scritta scura. L'oro
+  nei pulsanti vuol dire solo questo.
+- **Un colore per app, uguale in tutta la suite**: My Way smeraldo, Portafogli (Magüt) zaffiro, Fondi (OICR
+  Monitor) ametista, ETF turchese, Clienti (CRM) quarzo rosa (`--quarzo: #ff7eb6`; non giallo, che sembrerebbe una
+  scelta). Sta nella barra della suite (ogni app col suo colore; quella in cui sei ha bordo pieno e fondo velato del
+  suo colore, **mai oro**), nella linea sotto la testata e nel nome dell'app nel titolo (`--app`). «My Way» nella
+  barra è sempre coi colori del logo, senza secondo bordo.
+- Le pietre restano per i dati (serie, consulenze, classi): lì il colore è legenda. Niente colori a giro senza
+  significato.
 
 ## 6. Urgenza
 
