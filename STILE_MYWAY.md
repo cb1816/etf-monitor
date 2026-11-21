@@ -1,11 +1,13 @@
-# Lo stile di My Way — «olografico raffinato» (13 novembre 2026)
+# Lo stile di My Way — «verde a rilievo» (21 novembre 2026)
 
 Vale per i cinque progetti della suite: My Way, Magüt, OICR Monitor, ETF Monitor e il CRM.
 Questo file sta in `cb1816/myway` ed è l'originale; gli altri tengono una copia, come
 `FORMATO_PORTAFOGLIO.md`. Se cambia qui, si cambia in tutti.
 
-Nato dal mockup «Clienti — proposta di nuovo layout» (tavole F e G), approvato da Corrado
-il 13/11/2026.
+Storia: «olografico raffinato» del 13/11/2026 (tavole F e G di «Clienti — proposta di nuovo layout»);
+il 21/11/2026 Corrado ha scelto per tutta la suite il verde a rilievo topografico, le pietre come colori
+delle serie e la scena a steli (tela «Portfolio Workbench — proposte di stile», tavole 4 e 5). Vetro,
+caratteri, lastre che girano, disco e regole del movimento restano quelli del 13/11.
 
 ## 1. I colori: dodici variabili, stessi nomi di prima
 
@@ -13,54 +15,80 @@ I nomi non cambiano (il codice delle cinque app li usa in centinaia di punti); c
 
 | variabile | valore | uso |
 |---|---|---|
-| `--bg` | `#04070d` | fondo pagina, nero-blu |
-| `--panel` | `rgba(219,234,254,.045)` | lastre, tabelle, schede (vetro: si vede il fondo) |
-| `--panel2` | `rgba(165,243,252,.10)` | riquadro attivo, riga scelta |
-| `--line` | `rgba(219,234,254,.12)` | bordi e separatori, sottili |
-| `--txt` | `#e6f0f8` | testo |
-| `--mut` | `#8ea3b5` | testo secondario, etichette |
-| `--accent` | `#a5f3fc` | azzurro ghiaccio: voce attiva, link, titoli di sezione |
+| `--bg` | `#0b1813` | fondo pagina, verde notte |
+| `--panel` | `#0a1511` | lastre di lavoro: tabelle, liste, pannelli (fondo pieno) |
+| `--panel2` | `rgba(31,242,168,.10)` | riquadro attivo, riga scelta |
+| `--line` | `rgba(160,230,205,.14)` | bordi e separatori, sottili |
+| `--txt` | `#e9f2ec` | testo |
+| `--mut` | `#a9c7ba` | testo secondario, etichette |
+| `--accent` | `#1ff2a8` | smeraldo: il colore guida; voce attiva, link, titoli di sezione |
 | `--pos` | `#5eead4` | positivo (verde acqua) |
-| `--neg` | `#ff7a5c` | negativo, urgenza alta |
-| `--warn` | `#f0c46b` | avviso, urgenza media |
-| `--chip` | `rgba(219,234,254,.06)` | fondo di chip e pulsantini |
-| `--hot` | `#e7c98a` | oro chiaro: il «modello», il riferimento, la seconda serie |
+| `--neg` | `#ff4d6d` | negativo, urgenza alta (rubino) |
+| `--warn` | `#ffb21f` | avviso, urgenza media (topazio) |
+| `--chip` | `rgba(160,230,205,.07)` | fondo di chip e pulsantini |
+| `--hot` | `#f5c84c` | oro: il «modello», il riferimento, le etichette che contano |
 
-Più quattro nuove: `--oro: #e7c98a` (alias di `--hot`), `--basso: #9fb0ff` (urgenza bassa),
-`--su-accento: #04070d` (testo sopra un fondo `--accent`), `--fondo-solido: #0a1019`
-(dove serve un fondo pieno: menu, barra in basso sul telefono, finestre).
+Più: `--oro: #f5c84c` (alias di `--hot`), `--basso: #5b8cff` (urgenza bassa, zaffiro),
+`--su-accento: #04140e` (testo sopra un fondo `--accent`), `--fondo-solido: #08120e` (menu, barra in
+basso sul telefono, finestre), `--lastra: #0a1511` e `--lastra-bordo: rgba(160,230,205,.14)`.
 
-Positivo e negativo restano verde acqua e corallo, non verde e rosso puri: chi confonde i
-due li distingue anche per luminosità. Il colore non porta mai l'identità da solo: la
-parola (ALTA, MEDIA, BASSA; il segno + e −) c'è sempre.
+**Le pietre** — un colore acceso per ogni serie; danno ricchezza senza confondere, perché ognuna ha un
+significato fisso dentro una pagina e la parola c'è sempre:
 
-## 2. Il fondo
+| variabile | valore | pietra | dove, di solito |
+|---|---|---|---|
+| `--smeraldo` | `#1ff2a8` | smeraldo | la prima serie, il colore guida (= `--accent`) |
+| `--zaffiro` | `#5b8cff` | zaffiro | la seconda serie |
+| `--topazio` | `#ffb21f` | topazio | la terza serie |
+| `--ametista` | `#b57cff` | ametista | la quarta serie |
+| `--turchese` | `#22d3ee` | turchese | la quinta serie, il patrimonio |
+| `--oro` | `#f5c84c` | oro | totali, ricavo, riferimento |
+| `--rubino` | `#ff4d6d` | rubino | solo il dato mancante e il negativo |
 
-Fisso dietro tutta la pagina: un alone blu tenue al centro, un alone oro appena
-percettibile in alto a destra, una trama di punti ogni 24 pixel. Nient'altro.
+Nel CRM, per la consulenza: Advice smeraldo, Advice+ fee only zaffiro, Advice+ on top topazio, fuori
+consulenza ametista, totale oro, dato mancante rubino.
+
+Positivo e negativo restano verde acqua e rubino: chi confonde i due li distingue anche per
+luminosità. Il colore non porta mai l'identità da solo: la parola (ALTA, MEDIA, BASSA; il segno + e −)
+c'è sempre.
+
+## 2. Il fondo: verde a rilievo topografico
+
+Fisso dietro tutta la pagina: il verde notte, due luci piccole negli angoli (smeraldo in alto a
+sinistra, oro in basso a destra) e le **curve di livello** di `topografia.svg`, con un filo d'ombra
+spostato sotto ogni linea che le fa sembrare in rilievo. Niente aloni larghi: fanno nebbia.
 
 ```css
 background:
-  radial-gradient(1000px 640px at 46% 30%, rgba(56,120,170,.18), transparent 70%),
-  radial-gradient(600px 400px at 100% 0%, rgba(231,201,138,.06), transparent 70%),
-  radial-gradient(rgba(219,234,254,.07) 1px, transparent 1.2px) 0 0 / 24px 24px,
-  #04070d;
+  radial-gradient(620px 320px at 12% 0%, rgba(31,242,168,.12), transparent 70%),
+  radial-gradient(520px 280px at 100% 100%, rgba(245,200,76,.08), transparent 70%),
+  url("topografia.svg") center/cover no-repeat,
+  #0b1813;
 background-attachment: fixed;
 ```
 
-## 3. Le lastre
+`topografia.svg` lo scrive `grafica/rilievo.js` di My Way; gli altri progetti ne tengono una copia
+nella radice (il CRM, che non carica niente da fuori, lo mette nel suo foglio di stile).
 
-Ogni riquadro è una lastra. Due materiali, uno per app (si sceglie una volta, non per pagina):
+**Il logo** resta l'originale (MY / WA con la Y unica, lettere corallo, asta azzurra); il suo fondo
+verde, prima piatto, è ora a rilievo con le stesse curve (`grafica/icona_rilievo_*.svg`).
 
-- **vetro** (predefinito): fondo trasparente con sfocatura di quello che c'è dietro, bordo
-  chiaro sottile, filo di luce in alto e d'ombra in basso, ombra sotto, riflesso diagonale
-  tenue. Angoli 10 px.
-- **metallo**: titanio scuro spazzolato, bordo d'acciaio, angoli 6 px.
+## 3. Lastra e vetro: due materiali
 
-Classi in `stile.css`: `.lastra` (vetro), `.lastra.metallo`.
+- **Lastra** — le superfici dove si lavora: tabelle, liste, pannelli, la scena 3D. Fondo pieno
+  `--lastra`, bordo `--lastra-bordo`, filo di luce in alto, ombra sotto. **Niente sfocatura.**
+- **Vetro** — ciò che galleggia sopra qualcos'altro: i riquadri in cima a una pagina, le lastre che
+  girano, il primo piano, il dettaglio che si apre, menu e barre. Fondo trasparente con sfocatura
+  (16 px, saturazione 150%), bordo chiaro, filo di luce, riflesso diagonale. Angoli 10 px.
+- **Metallo** — variante del 13/11, invariata.
 
-La sfocatura (`backdrop-filter`) solo su schermi con mouse: sul telefono la lastra è
-semitrasparente senza sfocatura, che consuma batteria.
+Tre regole: **mai vetro sopra vetro**; **l'alone luminoso solo sull'elemento scelto**, mai su tutti;
+gli aloni del fondo sono quelli del §2 e basta.
+
+Classi in `stile.css`: `.lastra` (vetro, il nome resta per non rompere le pagine), `.tbl`, `.news`,
+`.panel`, `.mi-box` (lastra), `.lastra.metallo`, `.cr` (angoli a squadretta).
+
+La sfocatura solo su schermi con mouse: sul telefono il vetro è semitrasparente senza sfocatura.
 
 ## 4. Caratteri
 
@@ -93,6 +121,9 @@ Il movimento c'è solo dove **dice qualcosa**. Regole:
 
 - Una lastra che gira (`rotateY(180deg)`, 0,6 s) mostra sul retro il dettaglio di quello
   che c'è davanti. Si gira cliccando in un punto qualsiasi, tranne pulsanti e caselle.
+- Una lastra può anche **girarsi e venire in primo piano** (0,6 s, il resto della pagina si scurisce): per un
+  dettaglio troppo grande per il retro (grafico del periodo, tabella degli strumenti collegati). Si chiude con ✕,
+  con Esc o toccando fuori. Prima pagina che lo usa: Mercati, riquadri delle asset class (15/11/2026).
 - Un disco 3D si usa per **una misura sola con un riferimento**: altezza di un anello sopra
   il disco = distanza dal riferimento; velocità di rotazione = stessa misura; rotazione a
   mano = scegliere un pezzo; inclinazione o linea del tempo = la data.
@@ -101,20 +132,45 @@ Il movimento c'è solo dove **dice qualcosa**. Regole:
 - Animazioni sospese quando la pagina non è visibile (`document.hidden`).
 - Sul telefono: niente rotazioni continue, solo la lastra che gira al tocco.
 
+### La scena (21/11/2026)
+
+Il secondo tridimensionale, accanto al disco: **per confrontare**, non per raccontare. Un pavimento
+isometrico **fermo** (niente rotazione: le altezze devono restare confrontabili), righe e colonne come in
+una tabella, e su ogni incrocio uno **stelo**:
+
+- altezza dello stelo = la prima misura (nel CRM la resa);
+- superficie della sfera in cima = la seconda (il controvalore; raggio ∝ radice, con un minimo perché
+  le cose piccole si vedano);
+- luce della sfera = il loro prodotto (il ricavo): più guadagna, più è piena e larga di alone.
+
+Regole che vengono con la scena: una fascia a terra per ogni riga, alternata chiara e scura; i nomi
+degli assi sono pulsanti che mettono in evidenza riga o colonna (le altre diventano sagome) e
+«Torna alla vista generale» le riaccende; sopra ogni sfera un'etichetta col valore, che sceglie la
+cella; lo zero è un'impronta tratteggiata a terra, l'assente non si disegna. La scena sta su una
+lastra; il dettaglio a destra è vetro. Accanto c'è sempre «Tabella / Spazio»: sul telefono si apre su
+Tabella. Passaggi di 0,3 s quando una riga si accende, poi tutto fermo.
+
 ## 8. Dove si usa cosa
 
 | app | lastre | disco 3D | lastre che girano |
 |---|---|---|---|
-| My Way · Mercati, Flussi, Calendario | sì | no | no |
+| My Way · Mercati | sì | sì: il clima (punteggio e soglie ±25) | sì: i sei riquadri in cima (sul retro si sceglie cosa mostrare); le asset class si girano in primo piano |
+| My Way · Mercati, il mondo in diretta | sì | nessuno | nessuno: la mappa e il video si muovono da soli, perché sono dati veri (navi, televisione); la mappa chiara è portata al buio con un filtro |
+| Tutte le pagine · quadro di bordo | sì | nessuno | nessuno: è una barra fissa in cima, sempre uguale (quadro.js) |
+| My Way · Trend | sì | il globo dei temi gira per mostrare tutte le parole e si ferma quando lo tocchi (non è una misura) | le parole e le schede si girano in primo piano |
+| My Way · Flussi, Calendario | sì | no | no |
 | My Way · Magüt indicator | sì | sì: la quota della settimana | no |
 | Magüt · Portafogli modello | sì | sì: il modello per profilo, fette come settori | sì |
 | OICR Monitor, ETF Monitor | sì | no | sì: la scheda del fondo |
 | CRM · Clienti | sì | sì: patrimonio e distanza dal modello | sì |
+| CRM · Analisi e operazioni | sì | la scena: resa, controvalore, ricavo per strumento e consulenza | no |
 
 ## 9. Come si porta in un'app
 
-1. Si cambiano i valori delle dodici variabili in `:root` e si aggiungono le quattro nuove.
-2. Si cercano i colori scritti a mano (`#0b1220`, `#0d1626`, `#111b2d`, `#070c16`,
-   `rgba(79,156,255,…)`, `#04101f`, `#c9d3e3`) e si portano su variabili.
-3. Fondo, lastre, etichette, pulsanti come sopra.
+1. Si cambiano i valori delle dodici variabili in `:root` e si aggiungono le nuove (pietre, lastra).
+2. Si cercano i colori scritti a mano e si portano su variabili; quelli del 13/11 diventano: `#04070d`→`#0b1813`,
+   `#0a1019`→`#08120e`, `#a5f3fc`/`165,243,252`→`#1ff2a8`/`31,242,168`, `219,234,254`→`160,230,205`,
+   `4,7,13`→`8,18,14`, `#e7c98a`/`231,201,138`→`#f5c84c`/`245,200,76`, `#ff7a5c`/`255,122,92`→`#ff4d6d`/`255,77,109`,
+   `#9fb0ff`→`#5b8cff`, `#8ea3b5`→`#a9c7ba`, `#e6f0f8`→`#e9f2ec`, `#f0c46b`→`#ffb21f`.
+3. Fondo (con `topografia.svg` copiato nella radice), lastra e vetro, etichette, pulsanti come sopra.
 4. Test dell'app verdi; anteprima di Vercel guardata da Mac e da telefono prima del merge.
