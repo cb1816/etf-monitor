@@ -96,6 +96,13 @@ Classi in `stile.css`: `.lastra` (vetro, il nome resta per non rompere le pagine
 
 La sfocatura solo su schermi con mouse: sul telefono il vetro è semitrasparente senza sfocatura.
 
+**Correzione del 21/11 sera** (dopo la prima prova in produzione): il fondo sta in un livello fisso
+(`body::before`), così sul telefono le curve non scorrono e non si stirano; le placche hanno una base scura
+quasi piena (`--vetro-base: rgba(5,12,9,.82)`, `.96` sul telefono) e la lastra è più scura (`#050c09`) con un
+bordo più chiaro: le curve non passano attraverso e il vetro non fa nebbia. Aloni del fondo dimezzati.
+I **titoli di sezione** (`h2`) sono targhette chiare (`#d6ebe1`) con la scritta blu notte (`#0b1f33`):
+meno scritte in verde, più contrasto. Il verde resta per ciò che si tocca (link, voce attiva, pulsanti).
+
 ## 4. Caratteri
 
 **Caratteri di sistema, niente da scaricare** (il CRM non può caricare niente da fuori,
