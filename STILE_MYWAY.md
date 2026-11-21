@@ -23,14 +23,19 @@ I nomi non cambiano (il codice delle cinque app li usa in centinaia di punti); c
 | `--mut` | `#a9c7ba` | testo secondario, etichette |
 | `--accent` | `#1ff2a8` | smeraldo: il colore guida; voce attiva, link, titoli di sezione |
 | `--pos` | `#5eead4` | positivo (verde acqua) |
-| `--neg` | `#ff4d6d` | negativo, urgenza alta (rubino) |
+| `--neg` | `#e8365d` | negativo, urgenza alta (rubino) |
 | `--warn` | `#ffb21f` | avviso, urgenza media (topazio) |
 | `--chip` | `rgba(160,230,205,.07)` | fondo di chip e pulsantini |
 | `--hot` | `#f5c84c` | oro: il «modello», il riferimento, le etichette che contano |
 
-Più: `--oro: #f5c84c` (alias di `--hot`), `--basso: #5b8cff` (urgenza bassa, zaffiro),
+Più: `--oro: #f5c84c` (alias di `--hot`), `--basso: #4fb6ff` (urgenza bassa, zaffiro),
 `--su-accento: #04140e` (testo sopra un fondo `--accent`), `--fondo-solido: #08120e` (menu, barra in
 basso sul telefono, finestre), `--lastra: #0a1511` e `--lastra-bordo: rgba(160,230,205,.14)`.
+
+**Dal logo.** I tre colori del logo sono la base: il verde del fondo è il terreno della suite (fondo e
+smeraldo), il blu dell'asta è lo zaffiro, il corallo delle lettere è il colore del marchio. Il corallo
+(`--marchio: #ff5a4f`) sta solo nel logo e nei titoli di pagina: **non vuol mai dire «male»**; il negativo
+è il rubino, un rosso più freddo e più scuro.
 
 **Le pietre** — un colore acceso per ogni serie; danno ricchezza senza confondere, perché ognuna ha un
 significato fisso dentro una pagina e la parola c'è sempre:
@@ -38,12 +43,13 @@ significato fisso dentro una pagina e la parola c'è sempre:
 | variabile | valore | pietra | dove, di solito |
 |---|---|---|---|
 | `--smeraldo` | `#1ff2a8` | smeraldo | la prima serie, il colore guida (= `--accent`) |
-| `--zaffiro` | `#5b8cff` | zaffiro | la seconda serie |
+| `--zaffiro` | `#4fb6ff` | zaffiro (l'asta del logo) | la seconda serie |
 | `--topazio` | `#ffb21f` | topazio | la terza serie |
 | `--ametista` | `#b57cff` | ametista | la quarta serie |
 | `--turchese` | `#22d3ee` | turchese | la quinta serie, il patrimonio |
 | `--oro` | `#f5c84c` | oro | totali, ricavo, riferimento |
-| `--rubino` | `#ff4d6d` | rubino | solo il dato mancante e il negativo |
+| `--rubino` | `#e8365d` | rubino | solo il dato mancante e il negativo |
+| `--marchio` | `#ff5a4f` | corallo del logo | solo logo e titoli di pagina |
 
 Nel CRM, per la consulenza: Advice smeraldo, Advice+ fee only zaffiro, Advice+ on top topazio, fuori
 consulenza ametista, totale oro, dato mancante rubino.
@@ -170,7 +176,7 @@ Tabella. Passaggi di 0,3 s quando una riga si accende, poi tutto fermo.
 1. Si cambiano i valori delle dodici variabili in `:root` e si aggiungono le nuove (pietre, lastra).
 2. Si cercano i colori scritti a mano e si portano su variabili; quelli del 13/11 diventano: `#04070d`→`#0b1813`,
    `#0a1019`→`#08120e`, `#a5f3fc`/`165,243,252`→`#1ff2a8`/`31,242,168`, `219,234,254`→`160,230,205`,
-   `4,7,13`→`8,18,14`, `#e7c98a`/`231,201,138`→`#f5c84c`/`245,200,76`, `#ff7a5c`/`255,122,92`→`#ff4d6d`/`255,77,109`,
-   `#9fb0ff`→`#5b8cff`, `#8ea3b5`→`#a9c7ba`, `#e6f0f8`→`#e9f2ec`, `#f0c46b`→`#ffb21f`.
+   `4,7,13`→`8,18,14`, `#e7c98a`/`231,201,138`→`#f5c84c`/`245,200,76`, `#ff7a5c`/`255,122,92`→`#e8365d`/`232,54,93`,
+   `#9fb0ff`→`#4fb6ff`, `#8ea3b5`→`#a9c7ba`, `#e6f0f8`→`#e9f2ec`, `#f0c46b`→`#ffb21f`.
 3. Fondo (con `topografia.svg` copiato nella radice), lastra e vetro, etichette, pulsanti come sopra.
 4. Test dell'app verdi; anteprima di Vercel guardata da Mac e da telefono prima del merge.

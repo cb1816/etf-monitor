@@ -14,7 +14,7 @@
 <title>ETF Monitor</title>
 <style>
 :root{--bg:#0b1813;--panel:#0a1511;--panel2:rgba(31,242,168,.10);--line:rgba(160,230,205,.14);--txt:#e9f2ec;--mut:#a9c7ba;
-  --accent:#1ff2a8;--pos:#5eead4;--neg:#ff4d6d;--warn:#ffb21f;--chip:rgba(160,230,205,.07);--hot:#f5c84c;--pair:#a78bfa}
+  --accent:#1ff2a8;--pos:#5eead4;--neg:#e8365d;--warn:#ffb21f;--chip:rgba(160,230,205,.07);--hot:#f5c84c;--pair:#a78bfa}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.4}
@@ -93,7 +93,7 @@ header.fopen{position:relative}
 .stars{font-size:10px;color:var(--warn);margin-top:1px;letter-spacing:1px}
 .badges{margin-top:2px;display:flex;gap:4px;flex-wrap:wrap}
 .qbadge{display:inline-block;font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:5px}
-.q1{background:rgba(94,234,212,.16);color:var(--pos)}.q4{background:rgba(255,77,109,.16);color:var(--neg)}
+.q1{background:rgba(94,234,212,.16);color:var(--pos)}.q4{background:rgba(232,54,93,.16);color:var(--neg)}
 .sec{font-size:12px;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.6px;margin:16px 4px 6px}
 .sec.flop{color:var(--neg)}.sec.top{color:var(--pos)}.sec.hot{color:var(--hot)}
 .sec.pair{color:var(--pair);display:flex;align-items:center;gap:8px}
@@ -126,7 +126,7 @@ header.fopen{position:relative}
 .note{font-size:11px;color:var(--mut);margin-top:10px;line-height:1.5}
 .pill{display:inline-block;background:var(--chip);border:1px solid var(--line);border-radius:6px;padding:2px 7px;font-size:11px;color:var(--mut);margin:0 5px 4px 0}
 .mombar{height:6px;border-radius:4px;background:var(--panel2);overflow:hidden;margin-top:6px}
-.mombar>i{display:block;height:100%;background:linear-gradient(90deg,#ff4d6d,#ffb21f,#5eead4)}
+.mombar>i{display:block;height:100%;background:linear-gradient(90deg,#e8365d,#ffb21f,#5eead4)}
 .chartbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 8px 4px;margin-top:4px}
 .chartbox svg{display:block;width:100%;height:110px}
 .chleg{display:flex;justify-content:space-between;font-size:10px;color:var(--mut);padding:2px 4px 0}
@@ -238,7 +238,7 @@ body.hascmp>a[href*="oicr-monitor"]{bottom:calc(132px + env(safe-area-inset-bott
 .cmpbest{text-transform:none;letter-spacing:0;color:var(--pos);font-weight:600;margin-left:6px}
 .cmpcorr td{text-align:center}.cmpcorr td:first-child{max-width:150px;overflow:hidden;text-overflow:ellipsis}
 .cdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
-.cmpcorr td.c4,.cl.c4{background:rgba(255,77,109,.25)}.cmpcorr td.c3,.cl.c3{background:rgba(240,196,107,.20)}
+.cmpcorr td.c4,.cl.c4{background:rgba(232,54,93,.25)}.cmpcorr td.c3,.cl.c3{background:rgba(240,196,107,.20)}
 .cmpcorr td.c2,.cl.c2{background:rgba(31,242,168,.16)}.cmpcorr td.c1,.cl.c1{background:rgba(94,234,212,.18)}
 .cl{display:inline-block;border-radius:4px;padding:0 5px;margin:2px 2px 0 0;color:var(--txt);white-space:nowrap}
 details.cmpdet{margin-top:10px}details.cmpdet[open]{padding-bottom:10px}
@@ -299,7 +299,7 @@ body.hascmp .wrap{padding-bottom:110px}
 .cmpbtn:hover{background:var(--panel2)}.cmpbtn.on:hover{background:var(--accent)}
 }
 /* ===== Stile «olografico raffinato» della suite (13/11/2026): STILE_MYWAY.md ===== */
-:root{--basso:#5b8cff;--su-accento:#04140e;--fondo-solido:#08120e;--smeraldo:#1ff2a8;--zaffiro:#5b8cff;--topazio:#ffb21f;--ametista:#b57cff;--turchese:#22d3ee;--rubino:#ff4d6d;--lastra:#0a1511;--lastra-bordo:rgba(160,230,205,.14);--mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+:root{--basso:#4fb6ff;--su-accento:#04140e;--fondo-solido:#08120e;--smeraldo:#1ff2a8;--zaffiro:#4fb6ff;--topazio:#ffb21f;--ametista:#b57cff;--turchese:#22d3ee;--rubino:#e8365d;--marchio:#ff5a4f;--lastra:#0a1511;--lastra-bordo:rgba(160,230,205,.14);--mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
 html,body{background:radial-gradient(620px 320px at 12% 0%,rgba(31,242,168,.12),transparent 70%),radial-gradient(520px 280px at 100% 100%,rgba(245,200,76,.08),transparent 70%),url("topografia.svg") center/cover no-repeat,var(--bg);
   background-attachment:fixed;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
 header{background:rgba(8,18,14,.82)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
