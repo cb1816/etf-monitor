@@ -123,6 +123,14 @@ tabellari). Le cifre nelle tabelle restano a peso normale: leggere fra cento rig
 - Etichette dei pulsanti in maiuscolo spaziato, carattere tecnico.
 - Voce attiva di un menu: sottolineata da un filo `--accent`, non riempita.
 
+**Dal 21/11/2026 (sera)**:
+- **«My Way» si scrive sempre coi colori del logo**: lettere corallo (`--marchio`), le Y blu (`--zaffiro`).
+  In HTML: `<span class="mw">M<i>Y</i> WA<i>Y</i></span>`.
+- **I pulsanti sono a colori**: a riposo ognuno ha la sua pietra, a giro smeraldo, zaffiro, ametista, turchese
+  (testo e bordo); **sotto il cursore diventano oro**; **la scelta attiva è oro pieno** con la scritta scura.
+  L'oro nei pulsanti vuol dire solo questo. Nella barra della suite l'app in cui sei ha il bordo oro e il nome
+  coi suoi colori.
+
 ## 6. Urgenza
 
 ALTA `--neg`, MEDIA `--warn`, BASSA `--basso`: un trattino orizzontale del colore seguito
