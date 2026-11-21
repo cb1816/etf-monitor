@@ -333,8 +333,9 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .tbl,.panel,.box{background:var(--lastra);border:1px solid var(--lastra-bordo);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 12px 30px rgba(0,0,0,.45);-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (hover:none),(pointer:coarse){:root{--vetro-base:rgba(5,12,9,.96)}}
 /* titoli di sezione: targhetta chiara, scritta blu notte (non piu' verde) */
-h2{color:#0b1f33;background:#d6ebe1;width:fit-content;max-width:100%;padding:4px 9px 3px;border-radius:4px;gap:14px}
-h2 small{color:#33544a}
+h2:not([class]){color:#0b1f33;background:#d6ebe1;width:fit-content;max-width:100%;padding:4px 9px 3px;border-radius:4px;gap:14px}
+h2:not([class]) small{color:#33544a}
+/* i titoli grandi di pagina (Mercati, Trend, Commercio e attivita', i titoli di Magut) restano scritti in chiaro sul fondo */
 
 /* ===== 21/11/2026: «My Way» coi colori del logo; il colore dice dove sei; ORO = scelta (STILE_MYWAY.md §5) =====
    Pulsanti neutri a riposo; oro sotto il cursore; oro pieno la scelta attiva. Un colore per app, uguale in tutta la
