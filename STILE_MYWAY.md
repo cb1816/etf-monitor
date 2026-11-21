@@ -126,10 +126,14 @@ tabellari). Le cifre nelle tabelle restano a peso normale: leggere fra cento rig
 **Dal 21/11/2026 (sera)**:
 - **«My Way» si scrive sempre coi colori del logo**: lettere corallo (`--marchio`), le Y blu (`--zaffiro`).
   In HTML: `<span class="mw">M<i>Y</i> WA<i>Y</i></span>`.
-- **I pulsanti sono a colori**: a riposo ognuno ha la sua pietra, a giro smeraldo, zaffiro, ametista, turchese
-  (testo e bordo); **sotto il cursore diventano oro**; **la scelta attiva è oro pieno** con la scritta scura.
-  L'oro nei pulsanti vuol dire solo questo. Nella barra della suite l'app in cui sei ha il bordo oro e il nome
-  coi suoi colori.
+- **Il colore dice dove sei, l'oro dice cosa hai scelto.** I pulsanti a riposo sono neutri (scritta chiara,
+  bordo sottile); **sotto il cursore diventano oro**; **la scelta attiva è oro pieno** con la scritta scura. L'oro
+  nei pulsanti vuol dire solo questo.
+- **Un colore per app, uguale in tutta la suite**: My Way smeraldo, Portafogli (Magüt) zaffiro, Fondi (OICR
+  Monitor) ametista, ETF turchese, Clienti (CRM) topazio. Sta nella barra della suite (ogni app col suo colore;
+  quella in cui sei ha il bordo oro), nella linea sotto la testata e nel nome dell'app nel titolo (`--app`).
+- Le pietre restano per i dati (serie, consulenze, classi): lì il colore è legenda. Niente colori a giro senza
+  significato.
 
 ## 6. Urgenza
 

@@ -336,19 +336,25 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 h2{color:#0b1f33;background:#d6ebe1;width:fit-content;max-width:100%;padding:4px 9px 3px;border-radius:4px;gap:14px}
 h2 small{color:#33544a}
 
-/* ===== 21/11/2026: «My Way» sempre coi colori del logo; pulsanti a colori; ORO = scelta attiva (STILE_MYWAY.md §5) =====
-   A riposo ogni pulsante ha la sua pietra (smeraldo, zaffiro, ametista, turchese, a giro); sotto il cursore diventa oro;
-   la scelta attiva e' oro pieno. L'oro non si usa per altro nei pulsanti. */
+/* ===== 21/11/2026: «My Way» coi colori del logo; il colore dice dove sei; ORO = scelta (STILE_MYWAY.md §5) =====
+   Pulsanti neutri a riposo; oro sotto il cursore; oro pieno la scelta attiva. Un colore per app, uguale in tutta la
+   suite: My Way smeraldo, Portafogli zaffiro, Fondi ametista, ETF turchese, Clienti topazio. */
+:root{--app:var(--turchese)}
 .mw{color:var(--marchio,#ff5a4f)!important;font-weight:700}.mw i{font-style:normal;color:var(--zaffiro,#4fb6ff)}
-.suite>*,.ngb>a,.chip,.seg button,.btn,.ricarica{--c:var(--smeraldo,#1ff2a8)}
-.suite>:nth-child(4n+2),.ngb>a:nth-child(4n+2),.chip:nth-child(4n+2),.seg button:nth-child(4n+2),.btn:nth-child(4n+2){--c:var(--zaffiro,#4fb6ff)}
-.suite>:nth-child(4n+3),.ngb>a:nth-child(4n+3),.chip:nth-child(4n+3),.seg button:nth-child(4n+3),.btn:nth-child(4n+3){--c:var(--ametista,#b57cff)}
-.suite>:nth-child(4n+4),.ngb>a:nth-child(4n+4),.chip:nth-child(4n+4),.seg button:nth-child(4n+4),.btn:nth-child(4n+4){--c:var(--turchese,#22d3ee)}
-.suite a,.suite button,.ngb>a,.chip,.seg button,.btn,.ricarica{color:var(--c)!important;border-color:var(--c)!important;background:transparent!important;box-shadow:none!important;transition:color .15s,border-color .15s,background-color .15s}
-.suite a:hover,.suite button:hover,.ngb>a:hover,.chip:hover,.seg button:hover,.btn:hover,.ricarica:hover,
-.suite a:focus-visible,.ngb>a:focus-visible,.chip:focus-visible,.seg button:focus-visible,.btn:focus-visible{color:#f5c84c!important;border-color:#f5c84c!important;background:rgba(245,200,76,.12)!important}
+.ngb>a,.chip,.seg button,.btn,.ricarica,.suite>*{color:#dbe9e2!important;border-color:rgba(190,235,220,.24)!important;background:transparent!important;box-shadow:none!important;transition:color .15s,border-color .15s,background-color .15s}
+.suite>:nth-child(1){color:var(--smeraldo,#1ff2a8)!important;border-color:rgba(31,242,168,.5)!important}
+.suite>:nth-child(2){color:var(--zaffiro,#4fb6ff)!important;border-color:rgba(79,182,255,.5)!important}
+.suite>:nth-child(3){color:var(--ametista,#b57cff)!important;border-color:rgba(181,124,255,.5)!important}
+.suite>:nth-child(4){color:var(--turchese,#22d3ee)!important;border-color:rgba(34,211,238,.5)!important}
+.suite>:nth-child(5){color:var(--topazio,#ffb21f)!important;border-color:rgba(255,178,31,.5)!important}
+.ngb>a:hover,.chip:hover,.seg button:hover,.btn:hover,.ricarica:hover,.suite a:hover,.suite button:hover,
+.ngb>a:focus-visible,.chip:focus-visible,.seg button:focus-visible,.btn:focus-visible,.suite a:focus-visible{color:#f5c84c!important;border-color:#f5c84c!important;background:rgba(245,200,76,.12)!important}
 .ngb>a[aria-current],.chip.on,.seg button.on,.btn.on,.btn[aria-pressed="true"]{color:#1a1404!important;background:#f5c84c!important;border-color:#f5c84c!important;box-shadow:none!important}
-.suite>[aria-current]{color:#f5c84c!important;background:rgba(245,200,76,.16)!important;border:1.5px solid #f5c84c!important;box-shadow:none!important}
+.suite>[aria-current]{background:rgba(245,200,76,.16)!important;border:1.5px solid #f5c84c!important}
+header{border-bottom:2px solid var(--app)!important}
+h1 b:not(.mw){color:var(--app)}
+.ngl{color:var(--mut)!important}
+
 </style>
 </head>
 <body>
