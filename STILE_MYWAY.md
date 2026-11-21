@@ -130,8 +130,10 @@ tabellari). Le cifre nelle tabelle restano a peso normale: leggere fra cento rig
   bordo sottile); **sotto il cursore diventano oro**; **la scelta attiva è oro pieno** con la scritta scura. L'oro
   nei pulsanti vuol dire solo questo.
 - **Un colore per app, uguale in tutta la suite**: My Way smeraldo, Portafogli (Magüt) zaffiro, Fondi (OICR
-  Monitor) ametista, ETF turchese, Clienti (CRM) topazio. Sta nella barra della suite (ogni app col suo colore;
-  quella in cui sei ha il bordo oro), nella linea sotto la testata e nel nome dell'app nel titolo (`--app`).
+  Monitor) ametista, ETF turchese, Clienti (CRM) quarzo rosa (`--quarzo: #ff7eb6`; non giallo, che sembrerebbe una
+  scelta). Sta nella barra della suite (ogni app col suo colore; quella in cui sei ha bordo pieno e fondo velato del
+  suo colore, **mai oro**), nella linea sotto la testata e nel nome dell'app nel titolo (`--app`). «My Way» nella
+  barra è sempre coi colori del logo, senza secondo bordo.
 - Le pietre restano per i dati (serie, consulenze, classi): lì il colore è legenda. Niente colori a giro senza
   significato.
 

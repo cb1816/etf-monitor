@@ -338,19 +338,21 @@ h2 small{color:#33544a}
 
 /* ===== 21/11/2026: «My Way» coi colori del logo; il colore dice dove sei; ORO = scelta (STILE_MYWAY.md §5) =====
    Pulsanti neutri a riposo; oro sotto il cursore; oro pieno la scelta attiva. Un colore per app, uguale in tutta la
-   suite: My Way smeraldo, Portafogli zaffiro, Fondi ametista, ETF turchese, Clienti topazio. */
-:root{--app:var(--turchese)}
-.mw{color:var(--marchio,#ff5a4f)!important;font-weight:700}.mw i{font-style:normal;color:var(--zaffiro,#4fb6ff)}
+   suite: My Way smeraldo, Portafogli zaffiro, Fondi ametista, ETF turchese, Clienti quarzo rosa. */
+:root{--quarzo:#ff7eb6;--app:var(--turchese)}
+.mw,.suite .mw,.suite span.mw{color:var(--marchio,#ff5a4f)!important;font-weight:700;background:none!important;border:0!important;padding:0!important;box-shadow:none!important}.mw i{font-style:normal;color:var(--zaffiro,#4fb6ff)}
 .ngb>a,.chip,.seg button,.btn,.ricarica,.suite>*{color:#dbe9e2!important;border-color:rgba(190,235,220,.24)!important;background:transparent!important;box-shadow:none!important;transition:color .15s,border-color .15s,background-color .15s}
 .suite>:nth-child(1){color:var(--smeraldo,#1ff2a8)!important;border-color:rgba(31,242,168,.5)!important}
 .suite>:nth-child(2){color:var(--zaffiro,#4fb6ff)!important;border-color:rgba(79,182,255,.5)!important}
 .suite>:nth-child(3){color:var(--ametista,#b57cff)!important;border-color:rgba(181,124,255,.5)!important}
 .suite>:nth-child(4){color:var(--turchese,#22d3ee)!important;border-color:rgba(34,211,238,.5)!important}
-.suite>:nth-child(5){color:var(--topazio,#ffb21f)!important;border-color:rgba(255,178,31,.5)!important}
+.suite>:nth-child(5){color:var(--quarzo,#ff7eb6)!important;border-color:rgba(255,126,182,.5)!important}
 .ngb>a:hover,.chip:hover,.seg button:hover,.btn:hover,.ricarica:hover,.suite a:hover,.suite button:hover,
 .ngb>a:focus-visible,.chip:focus-visible,.seg button:focus-visible,.btn:focus-visible,.suite a:focus-visible{color:#f5c84c!important;border-color:#f5c84c!important;background:rgba(245,200,76,.12)!important}
 .ngb>a[aria-current],.chip.on,.seg button.on,.btn.on,.btn[aria-pressed="true"]{color:#1a1404!important;background:#f5c84c!important;border-color:#f5c84c!important;box-shadow:none!important}
-.suite>[aria-current]{background:rgba(245,200,76,.16)!important;border:1.5px solid #f5c84c!important}
+/* l'app in cui sei: il suo colore, pieno di bordo e velato di fondo; l'oro resta per le scelte nella pagina */
+.suite>[aria-current]{background:color-mix(in srgb,currentColor 18%,transparent)!important;border:1.5px solid currentColor!important}
+.suite>[aria-current]:hover{color:inherit}
 header{border-bottom:2px solid var(--app)!important}
 h1 b:not(.mw){color:var(--app)}
 .ngl{color:var(--mut)!important}
