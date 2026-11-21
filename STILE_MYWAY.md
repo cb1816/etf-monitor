@@ -112,6 +112,10 @@ regola «nessuna rete» e test `w7`):
 - etichette tecniche: `"SF Mono", ui-monospace, Menlo, monospace`, 10–11 px, maiuscolo,
   spaziatura `.22em`, colore `--mut`.
 
+**In una fila di placche le cifre stanno sulla stessa linea**, anche se un'etichetta va su due righe: la
+fila è una griglia e ogni placca una sottogriglia (etichetta, cifra, nota), oppure l'etichetta ha l'altezza di
+due righe con il testo in basso.
+
 Le cifre importanti sono **grandi e leggere** (peso 300, `letter-spacing:-.02em`, cifre
 tabellari). Le cifre nelle tabelle restano a peso normale: leggere fra cento righe stanca.
 
