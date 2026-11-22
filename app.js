@@ -175,9 +175,9 @@ function viewTopFlop(){const list=withData(pool()).sort(ordina);
   if(list.length<2)return'<div class="empty">Dati insufficienti.</div>';
   const n=Math.min(10,Math.floor(list.length/2)||1);
   const scope=state.cat?('cat. '+state.cat):(state.macro||'assoluto');
-  let h='<div class="sec top">▲ Migliori per rend. '+mLabel()+' — '+esc(scope)+'</div>'+
+  let h='<div class="sec top">Migliori per rend. '+mLabel()+' — '+esc(scope)+'</div>'+
         list.slice(0,n).map((f,i)=>rowCard(f,i+1,'t')).join('');
-  h+='<div class="sec flop">▼ Peggiori per rend. '+mLabel()+' — '+esc(scope)+'</div>';
+  h+='<div class="sec flop">Peggiori per rend. '+mLabel()+' — '+esc(scope)+'</div>';
   h+=list.slice(-n).reverse().map((f,i)=>rowCard(f,list.length-i,'b')).join('');
   return h;}
 
@@ -331,7 +331,7 @@ function tdRow(f,rank,r,mx){const td=r[1],w=Math.min(50,Math.abs(td)/(mx||0.1)*5
     '<span class="ter">'+(f[I.ter]===null?'—':num(f[I.ter],2)+'%')+'</span></div>';}
 function kvBox(k,v){return '<div class="kv"><div class="k">'+k+'</div><div class="v sm">'+v+'</div></div>';}
 /* Bottoni di ordinamento: stanno nella testata della vista (layout v3), non nell'elenco. */
-function sortRow(){const inv=state.catInv,freccia=k=>state.catSort===k&&inv?' ▲':' ▼';
+function sortRow(){const inv=state.catInv,freccia=k=>state.catSort!==k?'':inv?', dal più basso':', dal più alto';
   const bt=(k,lbl)=>'<button type="button" class="sc'+(state.catSort===k?' on':'')+'" '+
     'title="Tocca di nuovo per invertire l\'ordine" onclick="setSort(\''+k+'\')">'+lbl+'</button>';
   return '<div class="sortrow"><span class="vk">Ordina</span>'+bt('score','Score'+freccia('score'))+
@@ -983,7 +983,7 @@ function openInfo(){
       '<b>Barra della suite</b>: My Way · Portafogli · Fondi · ETF · Clienti, uguale in tutte le app. <b>Clienti</b> '+
       'apre il CRM, che gira solo sul Mac: i dati dei clienti non passano da qui.<br>'+
       '<b>Ordine in Categorie</b> (Score, Trend 6m, A-Z): un secondo tocco sullo stesso bottone '+
-      'inverte l\'ordine, e la freccia passa da ▼ (dal più alto) a ▲ (dal più basso). Con Score ▲ '+
+      'inverte l\'ordine: da «dal più alto» a «dal più basso». Con Score dal più basso '+
       'in cima trovi le categorie più deboli della loro macro. Quelle senza score restano sempre '+
       'in fondo: è un dato che manca, non un voto basso.</div>'+
     '<div class="ihead">Cosa non c\'è, e perché</div>'+
