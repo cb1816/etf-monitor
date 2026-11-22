@@ -210,7 +210,7 @@ function viewCat(){let keys=catPool();
       '<div class="val"><div class="pct '+(c.score===null?'zero':cls(c.score-50))+'">'+
         (c.score===null?'—':c.score.toFixed(0))+'</div>'+
         '<div class="stars" style="color:var(--mut);letter-spacing:0">'+(c.score===null?'n&lt;'+MINN:'score')+'</div></div>'+
-      '<span class="chev" aria-hidden="true">›</span></div>';});
+      '</div>';});
   return h;}
 
 /* ================= SCHEDA CATEGORIA (v2, 01/10/2026) =================
@@ -275,7 +275,7 @@ function gCard(x,mx){const best=x.pul[0],r1=REPL.f[best[I.isin]],r2=x.pul[1]&&RE
   if(x.corti.length)ex.push('+ '+x.corti.length+' con meno di 3 anni');
   if(x.sporchi.length)ex.push(x.sporchi.length+' con dati instabili');
   if(x.pul.length>3||ex.length)h+='<button class="more" onclick="openGruppo('+x.gi+')">'+
-    (x.pul.length>3?'Mostra tutti e '+x.pul.length:'Vedi il gruppo completo')+' →</button>';
+    (x.pul.length>3?'Mostra tutti e '+x.pul.length:'Vedi il gruppo completo')+'</button>';
   if(ex.length)h+='<div class="gex">'+ex.join(' · ')+'</div>';
   return h+'</div>';}
 function openCat(nome){const c=CBY[nome];if(!c)return;ovCat=nome;ovPrev={t:'cat'};
@@ -293,7 +293,7 @@ function openCat(nome){const c=CBY[nome];if(!c)return;ovCat=nome;ovPrev={t:'cat'
     if(altri.length)b+='<details class="altri"><summary><span class="st"><b>Altri '+altri.length+' strumenti, per costo</b>'+
       '<small>ESG, equal weight, fattori, gestione attiva o indice non riconoscibile dal nome: '+
       'indici diversi fra loro, la tracking difference non è confrontabile.</small></span>'+
-      '<span class="chev" aria-hidden="true">⌄</span></summary>'+lista25(altri)+'</details>';
+      '<span class="chev" aria-hidden="true"></span></summary>'+lista25(altri)+'</details>';
     b+='<div class="note">'+legendaTD()+'</div>';
   }else{
     b+='<div class="ip mut">Nessun indice di questa categoria è replicato da abbastanza ETF con dati puliti '+
@@ -305,7 +305,7 @@ function openGruppo(gi){if(!ovCat)return;const {gr}=gruppiCat(membriCat(ovCat));
   const x=gr.find(y=>y.gi===gi);if(!x)return openCat(ovCat);ovPrev={t:'gr',gi};
   const mx=scalaTD(gr),lk=f=>'<a href="#" onclick="event.preventDefault();detail(\''+f[I.isin]+'\')">'+esc(f[I.name])+'</a>';
   let b='<button class="closex" onclick="closeOv()">✕</button>'+
-    '<button class="back" onclick="openCat(\''+jsq(ovCat)+'\')">← '+esc(ovCat)+'</button>'+
+    '<button class="back" onclick="openCat(\''+jsq(ovCat)+'\')">Torna a '+esc(ovCat)+'</button>'+
     '<h2>Indice '+esc(nomeGruppo(x.g))+' <span class="qbadge q1">verificato</span></h2>'+
     '<div class="ip mut" style="margin-top:6px">'+x.pul.length+' ETF sullo stesso indice, ordinati per quanto rendono in più '+
       'o in meno dei gemelli ogni anno. Il costo (TER) è già dentro: qui conta anche quello che il TER non dice.</div>'+
@@ -599,9 +599,9 @@ function detail(isin){const f=F.find(x=>x[I.isin]===isin);if(!f)return;
   const kv=(k,v,sm)=>'<div class="kv"><div class="k">'+k+'</div><div class="v'+(sm?' sm':'')+'">'+v+'</div></div>';
   const p=v=>'<span class="'+cls(v)+'">'+fmt(v)+'</span>';
   let b='<button class="closex" onclick="closeOv()">✕</button>'+
-    (ovCat?'<button class="back" onclick="indietro()">← '+(ovPrev&&ovPrev.t==='gr'
+    (ovCat?'<button class="back" onclick="indietro()">Torna a '+(ovPrev&&ovPrev.t==='gr'
       ?'Indice '+esc(nomeGruppo(REPL.g[ovPrev.gi])):esc(ovCat))+'</button>'
-      :(ovPrev&&ovPrev.t==='cmp'?'<button class="back" onclick="openCompare()">← Confronto</button>':''))+
+      :(ovPrev&&ovPrev.t==='cmp'?'<button class="back" onclick="openCompare()">Torna al confronto</button>':''))+
     '<h2>'+esc(f[I.name])+'</h2>'+
     '<div class="mc"><span class="pill">'+esc(f[I.isin])+'</span>'+
       (f[I.tick]?'<span class="pill">'+esc(f[I.tick])+'</span>':'')+esc(f[I.cat]||'categoria n/d')+'</div>'+cmpBtn(f[I.isin]);
@@ -845,11 +845,11 @@ function openCompare(){const fs=CMP.map(cmpF).filter(Boolean);
       (conTD.length?tdHead()+conTD.map(f=>tdRow(f,gemelli(gi).indexOf(f)+1,REPL.f[f[I.isin]],mx)).join(''):'')+
       (senzaTD.length?'<div class="note">Senza tracking difference: '+senzaTD.map(f=>'<b>'+esc(cmpCorto(f[I.name]))+'</b> ('+
         (replOf(f[I.isin]).q===2?'meno di 3 anni':'dati instabili')+')').join(', ')+'.</div>':'')+
-      '<div class="note">'+legendaTD()+' <a href="#" onclick="event.preventDefault();cmpGruppo(\''+fs[0][I.isin]+'\')">Tutti gli ETF su questo indice →</a></div>'+
+      '<div class="note">'+legendaTD()+' <a href="#" onclick="event.preventDefault();cmpGruppo(\''+fs[0][I.isin]+'\')">Tutti gli ETF su questo indice</a></div>'+
       '<div class="mlbl">Fianco a fianco</div>'+cmpTabella(fs,ch.fine,true)+
       '<details class="altri cmpdet"><summary><span class="st"><b>Grafico della performance cumulata</b>'+
         '<small>Chiuso apposta: sullo stesso indice lo scarto a fine periodo è soprattutto rumore delle serie mensili (date e cambi non allineati), che la tracking difference filtra.</small></span>'+
-        '<span class="chev" aria-hidden="true">⌄</span></summary>'+chips+ch.html+'</details>'+
+        '<span class="chev" aria-hidden="true"></span></summary>'+chips+ch.html+'</details>'+
       '<div class="note">La correlazione non si mostra: sullo stesso indice vale 1 per costruzione.</div>';
   }else{
     const coppie=gis.filter(k=>gm[k].length>1);
