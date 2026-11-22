@@ -193,7 +193,7 @@ details.altri summary{list-style:none;display:flex;align-items:center;gap:10px;p
 details.altri summary::-webkit-details-marker{display:none}
 details.altri .st{flex:1}details.altri .st b{display:block;font-size:13.5px}
 details.altri .st small{display:block;font-size:11.5px;color:var(--mut);margin-top:2px;line-height:1.4}
-details.altri[open] .chev{transform:rotate(180deg)}
+summary .chev::before{content:"Apri";font-size:11px}details[open]>summary .chev::before{content:"Chiudi"} /* niente frecce (22/11/2026) */
 details.altri[open]{padding-bottom:8px}
 .gbox{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:12px}
 .gbox .gl{font-size:11.5px;color:var(--mut);line-height:1.55}.gbox .gl a{color:inherit}
