@@ -16,14 +16,13 @@ const path = require('path');
 // gruppo-indice ed efficienza di replica (tracking difference): vedi api/_gruppi.js
 const { calcolaRepliche } = require('./_gruppi.js');
 
-/* Fine delle serie storiche di data/series.json. Il file e' STATICO: raccolto il
-   24/07/2026, ultimo punto mensile 30/06/2026. La data non e' scritta dentro il file:
-   e' stata ricavata allineando i rendimenti YTD e 1/3/6/12 mesi delle serie con quelli
-   dello screener (il fit e' netto su YTD: dicembre 2025 cade 6 punti prima della fine).
+/* Fine delle serie storiche di data/series.json. Il file e' STATICO: rigenerato il
+   22/11/2026 dal Mac (timeseries_cumulativereturn, endDate 2026-10-31), ultimo punto
+   mensile 31/10/2026 per 2.551 serie su 2.556. La data non e' scritta dentro il file.
    Le coppie e i grafici della scheda si fermano qui, non all'ultimo aggiornamento.
    Se un giorno si rigenerano le serie, aggiornare QUESTA riga: e' l'unico posto dove
    la data e' scritta. */
-const SERIE_FINE = '30/06/2026';
+const SERIE_FINE = '31/10/2026';
 
 const API = 'https://lt.morningstar.com/api/rest.svc/9vehuxllxs/security/screener';
 const DATAPOINTS = [

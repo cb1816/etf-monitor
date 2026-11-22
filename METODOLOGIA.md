@@ -442,14 +442,25 @@ schema 1 non esistono (patrimonio, drawdown, ticker). Provato sul file vero: fun
 fallback parziale che rotto. Quando capiterà di doverlo rigenerare, farlo con `git` da un
 container, non dall'editor web.
 
-**`data/series.json`** — **2.186 serie storiche reali**, di cui **1.137 con 60 punti mensili**
-(5 anni) e le altre più corte perché lo strumento è più giovane. Formato `isin -> "0.0,6.7,…"`,
-cumulato % con base 0. In produzione ne vengono servite 2.182 (quelle degli ISIN presenti).
+**`data/series.json`** — **2.556 serie storiche reali** (rigenerate il 22/11/2026), di cui
+**1.242 con 60 punti mensili** (5 anni, 30/11/2021 → 31/10/2026) e le altre più corte perché lo
+strumento è più giovane. Formato `isin -> "0.0,6.7,…"`, cumulato % con base 0. 26 ISIN dello
+screener non hanno serie; 5 serie finiscono prima di ottobre 2026 (strumenti senza prezzi recenti).
 La scheda strumento usa la serie reale quando c'è e ripiega sulla stima dai rendimenti quando
 manca, **dichiarando quale delle due sta mostrando**.
 
-**La fine delle serie è dichiarata nell'app dal 25/08/2026.** Il file è **statico**: raccolto il
-24/07/2026, ultimo punto mensile **30/06/2026**. Quella data **non è scritta dentro il file** — è
+**La fine delle serie è dichiarata nell'app dal 25/08/2026.** Il file è **statico**: la prima
+raccolta (24/07/2026) finiva al 30/06/2026; la rigenerazione del 22/11/2026 finisce al
+**31/10/2026**. Come si rigenera: dal Mac, Node, per ogni ISIN dello screener
+`id=<SecId>]2]0]ETEXG$XMIL&currencyId=EUR&idtype=Morningstar&frequency=monthly&startDate=<fine mese
+5 anni prima>&endDate=<ultima fine mese>&outputType=COMPACTJSON`, valori a una cifra decimale.
+Script: `strumenti/raccogli_serie.js`. Concorrenza 4: il 22/11 sono passate 2.582 richieste senza nessun 429.
+Controllo fatto prima di sostituire il file: nel tratto comune le serie nuove coincidono con le vecchie
+(1.121 su 1.128 entro 0,5 pt; le 7 eccezioni sono tratti piatti del file vecchio, ora con i prezzi
+veri). Contro lo screener, su 40 ISIN a caso con la serie giornaliera dello stesso endpoint al 20/11:
+YTD entro 0,3 pt in 27 casi su 40. Gli altri divergono di 0,3-2,6 pt (molti Xtrackers, MSCI World
+fisici): lo screener sembra lavorare sul NAV, la serie sul prezzo di Borsa. Lo scarto viene dalla
+fonte, non dalla raccolta. Quella data **non è scritta dentro il file** — è
 stata ricavata allineando i rendimenti YTD e 1/3/6/12 mesi delle serie con quelli dello screener
 (su YTD il fit è netto: dicembre 2025 cade sei punti prima della fine). Vive in **una riga sola**,
 `SERIE_FINE` in `api/data.js`, esposta come `meta.serieFine`: se un giorno si rigenerano le serie,
@@ -508,8 +519,8 @@ l'ufficio fiscale prima di finire in un testo mostrato al cliente.
 
 ## 15. Prossimi passi, in ordine di resa
 
-1. **Rigenerare `data/series.json`** (fermo al 30/06/2026): ringiovanisce TD, coppie e grafici.
-   Da `git` in un container, poi aggiornare `SERIE_FINE` in `api/data.js` (§12).
+1. **Rigenerare `data/series.json`** — fatto il 22/11/2026 (fine 31/10/2026). Da rifare quando
+   torna vecchio: dal Mac con Node come in §12, poi aggiornare `SERIE_FINE` in `api/data.js`.
 2. **Gruppo-indice: copertura** (§7) — oggi ~8% dell'universo ha la TD. Famiglie nuove con
    revisione a mano; ogni regola in tre posti (JS, Python, test).
 3. **Δ rango** — serve un archivio di rilevazioni settimanali (`data/snapshots.json` nel repo,
