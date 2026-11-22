@@ -454,7 +454,7 @@ raccolta (24/07/2026) finiva al 30/06/2026; la rigenerazione del 22/11/2026 fini
 **31/10/2026**. Come si rigenera: dal Mac, Node, per ogni ISIN dello screener
 `id=<SecId>]2]0]ETEXG$XMIL&currencyId=EUR&idtype=Morningstar&frequency=monthly&startDate=<fine mese
 5 anni prima>&endDate=<ultima fine mese>&outputType=COMPACTJSON`, valori a una cifra decimale.
-Concorrenza 4: il 22/11 sono passate 2.582 richieste senza nessun 429.
+Script: `strumenti/raccogli_serie.js`. Concorrenza 4: il 22/11 sono passate 2.582 richieste senza nessun 429.
 Controllo fatto prima di sostituire il file: nel tratto comune le serie nuove coincidono con le vecchie
 (1.121 su 1.128 entro 0,5 pt; le 7 eccezioni sono tratti piatti del file vecchio, ora con i prezzi
 veri). Contro lo screener, su 40 ISIN a caso con la serie giornaliera dello stesso endpoint al 20/11:
